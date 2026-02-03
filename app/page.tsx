@@ -1,3 +1,15 @@
-export default function Page() {
-  return <h1>Hello, Next.js!</h1>;
-}
+"use client";
+
+import { Card } from "@heroui/react";
+import Link from "next/link";
+import CommonNavBar from "component/CommonNavBar";
+
+const Page = () => {
+  return (
+    <div>
+      <CommonNavBar title="TOP" />
+    </div>
+  );
+};
+
+export default Page;
