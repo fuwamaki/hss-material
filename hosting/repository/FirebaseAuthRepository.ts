@@ -68,7 +68,6 @@ class FirebaseAuthRepository {
     }
   }
 
-  // Googleログイン
   public static async loginWithGoogle(): Promise<string | null> {
     try {
       const provider = new GoogleAuthProvider();
@@ -78,12 +77,6 @@ class FirebaseAuthRepository {
       console.log("Googleログインに失敗しました:", error.message);
       return error.message;
     }
-  }
-
-  // Google新規登録（Googleログインと同じ）
-  public static async registerWithGoogle(): Promise<string | null> {
-    // Googleログインと同じ処理
-    return await FirebaseAuthRepository.loginWithGoogle();
   }
 }
 

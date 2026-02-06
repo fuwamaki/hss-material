@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const Page = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-neutral-100">
       <CommonNavBar title="AIプログラミング体験" />
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-5xl">
