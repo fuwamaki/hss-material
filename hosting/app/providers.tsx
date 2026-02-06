@@ -1,7 +1,12 @@
 "use client";
 
 import { HeroUIProvider } from "@heroui/react";
+import { UserProvider } from "provider/UserContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <HeroUIProvider>{children}</HeroUIProvider>;
+  return (
+    <UserProvider>
+      <HeroUIProvider>{children}</HeroUIProvider>
+    </UserProvider>
+  );
 }
