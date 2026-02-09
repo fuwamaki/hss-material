@@ -1,3 +1,4 @@
+import type { UserInfoEntity } from "model/UserInfoEntity";
 import {
   collection,
   query,
@@ -30,8 +31,11 @@ class FireStoreRepository {
           id: docSnap.id,
           uid: docSnap.data().uid,
           email: docSnap.data().email,
-          name: docSnap.data().name,
-          furigana: docSnap.data().furigana,
+          lastName: docSnap.data().lastName,
+          firstName: docSnap.data().firstName,
+          lastNameKana: docSnap.data().lastNameKana,
+          firstNameKana: docSnap.data().firstNameKana,
+          typingSkillLevel: docSnap.data().typingSkillLevel,
           createdAt: docSnap.data().createdAt,
           updatedAt: docSnap.data().updatedAt,
         };
@@ -47,15 +51,21 @@ class FireStoreRepository {
   public static async createUserInfo(
     uid: string,
     email: string,
-    name: string | null = null,
-    furigana: string | null = null,
+    lastName: string | null = null,
+    firstName: string | null = null,
+    lastNameKana: string | null = null,
+    firstNameKana: string | null = null,
+    typingSkillLevel: number | null = null,
   ): Promise<string | null> {
     try {
       await addDoc(collection(FirebaseConfig.db, this.UserInfoCollectionName), {
         uid,
         email,
-        name,
-        furigana,
+        lastName,
+        firstName,
+        lastNameKana,
+        firstNameKana,
+        typingSkillLevel,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -67,18 +77,25 @@ class FireStoreRepository {
   }
 
   public static async updateUserInfo(
-    entity: UserInfoEntity,
-    name: string | null,
-    furigana: string | null,
+    uid: string,
+    update: {
+      lastName?: string | null;
+      firstName?: string | null;
+      lastNameKana?: string | null;
+      firstNameKana?: string | null;
+      typingSkillLevel?: number | null;
+    },
   ): Promise<UserInfoEntity | null> {
     try {
-      await updateDoc(doc(FirebaseConfig.db, this.UserInfoCollectionName, entity.id), {
-        name: name ?? entity.name,
-        furigana: furigana ?? entity.furigana,
+      // id取得
+      const userInfo = await this.getUserInfo(uid);
+      if (!userInfo) throw new Error("ユーザー情報が見つかりません");
+      await updateDoc(doc(FirebaseConfig.db, this.UserInfoCollectionName, userInfo.id), {
+        ...update,
         updatedAt: serverTimestamp(),
       });
       console.log("UserInfo updated successfully");
-      return await this.getUserInfo(entity.uid);
+      return await this.getUserInfo(uid);
     } catch (error) {
       console.error("Error updating userInfo:", error);
       throw error;

@@ -13,8 +13,26 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#409fff",
+          DEFAULT: "#6185ff",
         },
+      },
+      fontFamily: {
+        sans: [
+          "Noto Sans JP",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Helvetica Neue",
+          "Arial",
+          "Noto Sans",
+          "sans-serif",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+          "Noto Color Emoji",
+        ],
       },
     },
   },
