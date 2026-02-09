@@ -2,6 +2,7 @@
 import CommonNavBar from "component/CommonNavBar";
 import { Button } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
+import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { useEffect } from "react";
@@ -48,7 +49,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-neutral-100">
-      <CommonNavBar title="登録・ログイン" />
+      <CommonNavBar title="アカウント" />
       <div className="flex justify-center mt-12">
         <div className="w-full max-w-4xl mx-2">
           {!loggedIn ? (
@@ -68,15 +69,18 @@ export default function AuthPage() {
                 </span>
                 Sign in with Google
               </Button>
-              {success && <div className="mt-4 text-green-600 text-sm text-center">ログインに成功しました！</div>}
+              {success && <div className="mt-4 text-emerald-600 text-sm text-center">ログインに成功しました！</div>}
             </>
           ) : (
             <>
-              <div className="mb-4 text-green-600 text-sm text-center">ログイン済みです</div>
+              <div className="text-emerald-600 text-sm flex items-center justify-center gap-1">
+                <CheckIcon />
+                <span>ログイン済み</span>
+              </div>
               <Button
                 color="secondary"
                 variant="solid"
-                className="w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
+                className="mt-6 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
                 onPress={handleLogout}
                 isLoading={loading}
               >
