@@ -409,7 +409,7 @@ export default function AuthPage() {
                   ⑥ AIサービスを使ったことがある人は、どんな用途で利用したのか、教えてください（自由記述）
                 </label>
                 <textarea
-                  className="w-full border rounded px-3 py-2 bg-white min-h-[80px]"
+                  className="w-full border rounded px-3 py-2 bg-white min-h-20"
                   value={aiUsage}
                   onChange={(e) => setAiUsage(e.target.value)}
                   disabled={!loggedIn}
@@ -422,7 +422,7 @@ export default function AuthPage() {
                   ⑦ 本プロジェクトでしたいこと、期待していることを教えてください（自由記述）
                 </label>
                 <textarea
-                  className="w-full border rounded px-3 py-2 bg-white min-h-[80px]"
+                  className="w-full border rounded px-3 py-2 bg-white min-h-20"
                   value={projectExpect}
                   onChange={(e) => setProjectExpect(e.target.value)}
                   disabled={!loggedIn}
