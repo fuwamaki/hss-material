@@ -5,6 +5,7 @@ import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
+import { FireStoreRepository } from "repository/FireStoreRepository";
 import { useEffect } from "react";
 
 export default function AuthPage() {
@@ -27,9 +28,28 @@ export default function AuthPage() {
     if (result) {
       setError(result);
       setLoggedIn(false);
-    } else {
+      setLoading(false);
+      return;
+    }
+    // Googleログイン成功後、ユーザー情報がFirestoreに存在するか確認
+    try {
+      const uid = FirebaseAuthRepository.uid;
+      const email = FirebaseAuthRepository.email;
+      if (!uid || !email) {
+        setError("ユーザー情報の取得に失敗しました");
+        setLoading(false);
+        return;
+      }
+      const userInfo = await FireStoreRepository.getUserInfo(uid);
+      if (!userInfo) {
+        // 存在しなければ新規登録（name, furiganaはnullでOK）
+        await FireStoreRepository.createUserInfo(uid, email, null, null);
+      }
       setSuccess(true);
       setLoggedIn(true);
+    } catch (e) {
+      setError("ユーザー情報の登録に失敗しました");
+      setLoggedIn(false);
     }
     setLoading(false);
   };

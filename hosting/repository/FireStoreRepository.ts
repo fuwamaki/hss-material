@@ -29,6 +29,7 @@ class FireStoreRepository {
         return {
           id: docSnap.id,
           uid: docSnap.data().uid,
+          email: docSnap.data().email,
           name: docSnap.data().name,
           furigana: docSnap.data().furigana,
           createdAt: docSnap.data().createdAt,
@@ -43,10 +44,16 @@ class FireStoreRepository {
     }
   }
 
-  public static async createUserInfo(uid: string, name: string, furigana: string): Promise<string | null> {
+  public static async createUserInfo(
+    uid: string,
+    email: string,
+    name: string | null = null,
+    furigana: string | null = null,
+  ): Promise<string | null> {
     try {
       await addDoc(collection(FirebaseConfig.db, this.UserInfoCollectionName), {
         uid,
+        email,
         name,
         furigana,
         createdAt: serverTimestamp(),
