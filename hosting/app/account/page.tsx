@@ -22,6 +22,12 @@ export default function AuthPage() {
   const [lastNameKana, setLastNameKana] = useState("");
   const [firstNameKana, setFirstNameKana] = useState("");
   const [typingSkillLevel, setTypingSkillLevel] = useState<TypingSkillLevel | null>(null);
+  // 追加アンケート
+  const [webSkill, setWebSkill] = useState("");
+  const [programmingExp, setProgrammingExp] = useState("");
+  const [aiServices, setAiServices] = useState<string[]>([]);
+  const [aiUsage, setAiUsage] = useState("");
+  const [projectExpect, setProjectExpect] = useState("");
   useEffect(() => {
     (async () => {
       await FirebaseAuthRepository.initialize();
@@ -37,13 +43,23 @@ export default function AuthPage() {
           setLastNameKana(userInfo.lastNameKana || "");
           setFirstNameKana(userInfo.firstNameKana || "");
           setTypingSkillLevel(userInfo.typingSkillLevel || null);
+          setWebSkill(userInfo.webSkill || "");
+          setProgrammingExp(userInfo.programmingExp || "");
+          setAiServices(userInfo.aiServices || []);
+          setAiUsage(userInfo.aiUsage || "");
+          setProjectExpect(userInfo.projectExpect || "");
+        } else {
+          setLastName("");
+          setFirstName("");
+          setLastNameKana("");
+          setFirstNameKana("");
+          setTypingSkillLevel(null);
+          setWebSkill("");
+          setProgrammingExp("");
+          setAiServices([]);
+          setAiUsage("");
+          setProjectExpect("");
         }
-      } else {
-        setLastName("");
-        setFirstName("");
-        setLastNameKana("");
-        setFirstNameKana("");
-        setTypingSkillLevel(null);
       }
     })();
   }, []);
@@ -95,6 +111,11 @@ export default function AuthPage() {
         lastNameKana,
         firstNameKana,
         typingSkillLevel,
+        webSkill,
+        programmingExp,
+        aiServices,
+        aiUsage,
+        projectExpect,
       });
       setSuccess(true);
     } catch (e) {
@@ -242,6 +263,171 @@ export default function AuthPage() {
                   </label>
                 </div>
               </div>
+              {/* ③ HTML・CSS・JavaScriptは知っていますか？ */}
+              <div className="mt-8">
+                <label className="block text-md font-semibold mb-2">③ HTML・CSS・JavaScriptは知っていますか？</label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="webSkill"
+                      value="write"
+                      checked={webSkill === "write"}
+                      onChange={() => setWebSkill("write")}
+                      disabled={!loggedIn}
+                    />
+                    書いたことがある、使ったことがある
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="webSkill"
+                      value="somewhat"
+                      checked={webSkill === "somewhat"}
+                      onChange={() => setWebSkill("somewhat")}
+                      disabled={!loggedIn}
+                    />
+                    何のことか、なんとなく知っている
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="webSkill"
+                      value="nameOnly"
+                      checked={webSkill === "nameOnly"}
+                      onChange={() => setWebSkill("nameOnly")}
+                      disabled={!loggedIn}
+                    />
+                    名称を聞いたことはある
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="webSkill"
+                      value="none"
+                      checked={webSkill === "none"}
+                      onChange={() => setWebSkill("none")}
+                      disabled={!loggedIn}
+                    />
+                    聞いたことない
+                  </label>
+                </div>
+              </div>
+
+              {/* ④ プログラミング経験 */}
+              <div className="mt-8">
+                <label className="block text-md font-semibold mb-2">④ プログラミングをしたことがありますか？</label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="programmingExp"
+                      value="makeSomething"
+                      checked={programmingExp === "makeSomething"}
+                      onChange={() => setProgrammingExp("makeSomething")}
+                      disabled={!loggedIn}
+                    />
+                    何かを作ったことがある
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="programmingExp"
+                      value="little"
+                      checked={programmingExp === "little"}
+                      onChange={() => setProgrammingExp("little")}
+                      disabled={!loggedIn}
+                    />
+                    ちょっとやったことがある
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="programmingExp"
+                      value="schoolOnly"
+                      checked={programmingExp === "schoolOnly"}
+                      onChange={() => setProgrammingExp("schoolOnly")}
+                      disabled={!loggedIn}
+                    />
+                    授業などでやったことがあるが、未経験と言っても過言ではない
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="programmingExp"
+                      value="none"
+                      checked={programmingExp === "none"}
+                      onChange={() => setProgrammingExp("none")}
+                      disabled={!loggedIn}
+                    />
+                    プログラミングに関わったことがない
+                  </label>
+                </div>
+              </div>
+
+              {/* ⑤ 使ったことがあるAIサービス */}
+              <div className="mt-8">
+                <label className="block text-md font-semibold mb-2">
+                  ⑤ 使ったことがあるAIサービスを教えてください（複数選択可）
+                </label>
+                <div className="flex flex-col gap-2">
+                  {[
+                    { label: "ChatGPT", value: "ChatGPT" },
+                    { label: "Gemini", value: "Gemini" },
+                    { label: "Claude", value: "Claude" },
+                    { label: "Copilot", value: "Copilot" },
+                    { label: "Sora", value: "Sora" },
+                    { label: "Grok", value: "Grok" },
+                  ].map((item) => (
+                    <label
+                      key={item.value}
+                      className="flex items-center gap-2"
+                    >
+                      <input
+                        type="checkbox"
+                        name="aiServices"
+                        value={item.value}
+                        checked={aiServices.includes(item.value)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAiServices([...aiServices, item.value]);
+                          } else {
+                            setAiServices(aiServices.filter((v) => v !== item.value));
+                          }
+                        }}
+                        disabled={!loggedIn}
+                      />
+                      {item.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* ⑥ AIサービス用途 */}
+              <div className="mt-8">
+                <label className="block text-md font-semibold mb-2">
+                  ⑥ AIサービスを使ったことがある人は、どんな用途で利用したのか、教えてください（自由記述）
+                </label>
+                <textarea
+                  className="w-full border rounded px-3 py-2 bg-white min-h-[80px]"
+                  value={aiUsage}
+                  onChange={(e) => setAiUsage(e.target.value)}
+                  disabled={!loggedIn}
+                />
+              </div>
+
+              {/* ⑦ 本プロジェクトでしたいこと・期待 */}
+              <div className="mt-8">
+                <label className="block text-md font-semibold mb-2">
+                  ⑦ 本プロジェクトでしたいこと、期待していることを教えてください（自由記述）
+                </label>
+                <textarea
+                  className="w-full border rounded px-3 py-2 bg-white min-h-[80px]"
+                  value={projectExpect}
+                  onChange={(e) => setProjectExpect(e.target.value)}
+                  disabled={!loggedIn}
+                />
+              </div>
               <Button
                 color="primary"
                 variant="solid"
@@ -255,7 +441,7 @@ export default function AuthPage() {
               <Button
                 color="secondary"
                 variant="solid"
-                className="mt-6 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
+                className="mt-6 mb-20 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
                 onPress={handleLogout}
                 isLoading={loadingLogout}
               >

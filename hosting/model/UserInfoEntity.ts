@@ -14,6 +14,11 @@ export interface UserInfoEntity {
   lastNameKana?: string | null;
   firstNameKana?: string | null;
   typingSkillLevel?: TypingSkillLevel | null;
+  webSkill?: string | null;
+  programmingExp?: string | null;
+  aiServices?: string[] | null;
+  aiUsage?: string | null;
+  projectExpect?: string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

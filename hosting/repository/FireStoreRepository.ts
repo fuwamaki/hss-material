@@ -36,6 +36,11 @@ class FireStoreRepository {
           lastNameKana: docSnap.data().lastNameKana,
           firstNameKana: docSnap.data().firstNameKana,
           typingSkillLevel: docSnap.data().typingSkillLevel,
+          webSkill: docSnap.data().webSkill,
+          programmingExp: docSnap.data().programmingExp,
+          aiServices: docSnap.data().aiServices,
+          aiUsage: docSnap.data().aiUsage,
+          projectExpect: docSnap.data().projectExpect,
           createdAt: docSnap.data().createdAt,
           updatedAt: docSnap.data().updatedAt,
         };
@@ -56,6 +61,11 @@ class FireStoreRepository {
     lastNameKana: string | null = null,
     firstNameKana: string | null = null,
     typingSkillLevel: number | null = null,
+    webSkill: string | null = null,
+    programmingExp: string | null = null,
+    aiServices: string[] | null = null,
+    aiUsage: string | null = null,
+    projectExpect: string | null = null,
   ): Promise<string | null> {
     try {
       await addDoc(collection(FirebaseConfig.db, this.UserInfoCollectionName), {
@@ -66,6 +76,11 @@ class FireStoreRepository {
         lastNameKana,
         firstNameKana,
         typingSkillLevel,
+        webSkill,
+        programmingExp,
+        aiServices,
+        aiUsage,
+        projectExpect,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -84,7 +99,12 @@ class FireStoreRepository {
       lastNameKana?: string | null;
       firstNameKana?: string | null;
       typingSkillLevel?: number | null;
-    },
+      webSkill?: string | null;
+      programmingExp?: string | null;
+      aiServices?: string[] | null;
+      aiUsage?: string | null;
+      projectExpect?: string | null;
+    }
   ): Promise<UserInfoEntity | null> {
     try {
       // id取得
