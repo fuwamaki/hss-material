@@ -11,7 +11,7 @@ const Page = () => {
       <CommonNavBar title="AIプログラミング体験" />
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-4xl mx-2">
-          <Link href="/auth">
+          <Link href="/account">
             <Button
               color="primary"
               variant="solid"
@@ -20,7 +20,7 @@ const Page = () => {
               登録・ログインはこちら
             </Button>
           </Link>
-          <Link href="/auth">
+          <Link href="/account">
             <Button
               color="primary"
               variant="solid"
