@@ -3,6 +3,9 @@
 import CommonNavBar from "component/CommonNavBar";
 
 import { Button } from "@heroui/react";
+import AccountIcon from "icons/account";
+import ChatIcon from "icons/chat";
+import SubmissionIcon from "icons/submission";
 import Link from "next/link";
 
 const Page = () => {
@@ -29,6 +32,47 @@ const Page = () => {
               事前アンケートに回答をお願いします
             </Button>
           </Link>
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <Link
+              href="/account"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+              >
+                <AccountIcon />
+                <span>アカウント</span>
+              </Button>
+            </Link>
+            <Link
+              href="/chat"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+              >
+                <ChatIcon />
+                <span>質問する</span>
+              </Button>
+            </Link>
+            <Link
+              href="/submission"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+              >
+                <SubmissionIcon />
+                <span>提出する</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
