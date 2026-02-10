@@ -32,6 +32,17 @@ const Page = () => {
               事前アンケートに回答をお願いします
             </Button>
           </Link>
+          <div className="flex justify-end mt-4">
+            <Link href="/notice">
+              <Button
+                color="primary"
+                variant="solid"
+                className="font-bold bg-indigo-100 text-indigo-700"
+              >
+                お知らせ一覧へ
+              </Button>
+            </Link>
+          </div>
           <div className="mt-6 grid grid-cols-3 gap-3">
             <Link
               href="/account"
