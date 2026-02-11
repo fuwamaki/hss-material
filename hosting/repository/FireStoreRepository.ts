@@ -13,10 +13,31 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { FirebaseConfig } from "./FirebaseConfig";
+import { NoticeEntity } from "model/NoticeEntity";
+import { DocumentEntity } from "model/DocumentEntity";
+import { ChatMessageEntity } from "model/ChatMessageEntity";
+import { SubmissionOriginalPlayEntity } from "model/SubmissionOriginalPlayEntity";
+import { SubmissionOriginalSiteEntity } from "model/SubmissionOriginalSiteEntity";
+import { SubmissionQuizEntity } from "model/SubmissionQuizEntity";
+import { NoticeEntityConverter } from "util/NoticeEntityConverter";
+import { DocumentEntityConverter } from "util/DocumentEntityConverter";
+import { ChatMessageEntityConverter } from "util/ChatMessageEntityConverter";
+import { SubmissionOriginalPlayEntityConverter } from "util/SubmissionOriginalPlayEntityConverter";
+import { SubmissionOriginalSiteEntityConverter } from "util/SubmissionOriginalSiteEntityConverter";
+import { SubmissionQuizEntityConverter } from "util/SubmissionQuizEntityConverter";
 
 class FireStoreRepository {
   private static readonly UserInfoCollectionName = "user-info-collection";
+  private static readonly NoticeCollectionName = "notice-collection";
+  private static readonly ChatMessageCollectionName = "chat-message-collection";
+  private static readonly DocumentCollectionName = "document-collection";
+  private static readonly SubmissionOriginalPlayCollectionName = "submission-original-play-collection";
+  private static readonly SubmissionOriginalSiteCollectionName = "submission-original-site-collection";
+  private static readonly SubmissionQuizCollectionName = "submission-quiz-collection";
 
+  /*
+   * UserInfo
+   */
   public static async getUserInfo(uid: string): Promise<UserInfoEntity | null> {
     try {
       const q = query(
@@ -105,6 +126,172 @@ class FireStoreRepository {
       console.error("Error updating userInfo:", error);
       throw error;
     }
+  }
+
+  /*
+   * Notice
+   */
+  public static async getAllNotice(): Promise<NoticeEntity[]> {
+    const snapshot = await getDocs(collection(FirebaseConfig.db, this.NoticeCollectionName));
+    return snapshot.docs.map((docSnap) => NoticeEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  }
+
+  public static async getLatestPublishedNotice(): Promise<NoticeEntity | null> {
+    const q = query(
+      collection(FirebaseConfig.db, this.NoticeCollectionName),
+      where("isPublish", "==", true),
+      orderBy("orderId", "desc"),
+      limit(1),
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return NoticeEntityConverter.fromFirestore(snapshot.docs[0].id, snapshot.docs[0].data());
+  }
+
+  /*
+   * Document
+   */
+  public static async getDocumentById(documentId: string): Promise<DocumentEntity | null> {
+    const ref = doc(FirebaseConfig.db, this.DocumentCollectionName, documentId);
+    const snap = await getDocs(
+      query(collection(FirebaseConfig.db, this.DocumentCollectionName), where("id", "==", documentId)),
+    );
+    if (snap.empty) return null;
+    return DocumentEntityConverter.fromFirestore(snap.docs[0].id, snap.docs[0].data());
+  }
+
+  /*
+   * ChatMessage
+   */
+  public static async sendStudentChatMessage(studentId: string, senderId: string, message: string): Promise<string> {
+    const ref = await addDoc(collection(FirebaseConfig.db, this.ChatMessageCollectionName), {
+      studentId,
+      senderId,
+      senderRole: "student",
+      message,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  public static async getChatMessagesByStudentId(studentId: string): Promise<ChatMessageEntity[]> {
+    const q = query(
+      collection(FirebaseConfig.db, this.ChatMessageCollectionName),
+      where("studentId", "==", studentId),
+      orderBy("createdAt", "asc"),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  }
+
+  /*
+   * Submission
+   */
+  public static async getLatestSubmissionOriginalPlay(studentId: string): Promise<SubmissionOriginalPlayEntity | null> {
+    const q = query(
+      collection(FirebaseConfig.db, this.SubmissionOriginalPlayCollectionName),
+      where("studentId", "==", studentId),
+      orderBy("updatedAt", "desc"),
+      limit(1),
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return SubmissionOriginalPlayEntityConverter.fromFirestore(snapshot.docs[0].id, snapshot.docs[0].data());
+  }
+
+  public static async addSubmissionOriginalPlay(
+    studentId: string,
+    title: string,
+    targetUser: string,
+    userStory: string,
+  ): Promise<string> {
+    const ref = await addDoc(collection(FirebaseConfig.db, this.SubmissionOriginalPlayCollectionName), {
+      studentId,
+      title,
+      targetUser,
+      userStory,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  public static async updateSubmissionOriginalPlay(
+    id: string,
+    update: Partial<SubmissionOriginalPlayEntity>,
+  ): Promise<void> {
+    await updateDoc(doc(FirebaseConfig.db, this.SubmissionOriginalPlayCollectionName, id), {
+      ...update,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  public static async getLatestSubmissionOriginalSite(studentId: string): Promise<SubmissionOriginalSiteEntity | null> {
+    const q = query(
+      collection(FirebaseConfig.db, this.SubmissionOriginalSiteCollectionName),
+      where("studentId", "==", studentId),
+      orderBy("updatedAt", "desc"),
+      limit(1),
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return SubmissionOriginalSiteEntityConverter.fromFirestore(snapshot.docs[0].id, snapshot.docs[0].data());
+  }
+
+  public static async addSubmissionOriginalSite(
+    studentId: string,
+    keyFeature: string,
+    sourceCode: string,
+  ): Promise<string> {
+    const ref = await addDoc(collection(FirebaseConfig.db, this.SubmissionOriginalSiteCollectionName), {
+      studentId,
+      keyFeature,
+      sourceCode,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  public static async updateSubmissionOriginalSite(
+    id: string,
+    update: Partial<SubmissionOriginalSiteEntity>,
+  ): Promise<void> {
+    await updateDoc(doc(FirebaseConfig.db, this.SubmissionOriginalSiteCollectionName, id), {
+      ...update,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  public static async getLatestSubmissionQuiz(studentId: string): Promise<SubmissionQuizEntity | null> {
+    const q = query(
+      collection(FirebaseConfig.db, this.SubmissionQuizCollectionName),
+      where("studentId", "==", studentId),
+      orderBy("updatedAt", "desc"),
+      limit(1),
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return SubmissionQuizEntityConverter.fromFirestore(snapshot.docs[0].id, snapshot.docs[0].data());
+  }
+
+  public static async addSubmissionQuiz(studentId: string, keyFeature: string, sourceCode: string): Promise<string> {
+    const ref = await addDoc(collection(FirebaseConfig.db, this.SubmissionQuizCollectionName), {
+      studentId,
+      keyFeature,
+      sourceCode,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  public static async updateSubmissionQuiz(id: string, update: Partial<SubmissionQuizEntity>): Promise<void> {
+    await updateDoc(doc(FirebaseConfig.db, this.SubmissionQuizCollectionName, id), {
+      ...update,
+      updatedAt: serverTimestamp(),
+    });
   }
 }
 
