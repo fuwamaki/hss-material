@@ -1,3 +1,7 @@
+## サイトの概要
+
+Next.js と Tailwind CSS を使用した、「AIプログラミング体験」を生徒に提供するためのWebサイト。
+
 ## Launguage
 
 日本語を使用してください。
@@ -25,6 +29,11 @@ components/ フォルダに勝手にファイルを生成したりしないで�
 
 データベース関連は、hosting/repository/FireStoreRepository.ts を利用・実装してください。
 Admin用のデータベース操作は hosting/repository/FireStoreAdminRepository.ts を利用・実装してください。
+
+## Model
+
+データモデルは hosting/model/ フォルダに作成してください。
+作成するEntityには、id, createdAt, updatedAtフィールドを必ず含めてください。
 
 ## toast
 
