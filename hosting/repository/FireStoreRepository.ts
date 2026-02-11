@@ -1,4 +1,5 @@
 import type { UserInfoEntity } from "model/UserInfoEntity";
+import { UserInfoEntityConverter } from "util/UserInfoEntityConverter";
 import {
   collection,
   query,
@@ -27,23 +28,7 @@ class FireStoreRepository {
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const docSnap = querySnapshot.docs[0];
-        return {
-          id: docSnap.id,
-          uid: docSnap.data().uid,
-          email: docSnap.data().email,
-          lastName: docSnap.data().lastName,
-          firstName: docSnap.data().firstName,
-          lastNameKana: docSnap.data().lastNameKana,
-          firstNameKana: docSnap.data().firstNameKana,
-          typingSkillLevel: docSnap.data().typingSkillLevel,
-          webSkill: docSnap.data().webSkill,
-          programmingExp: docSnap.data().programmingExp,
-          aiServices: docSnap.data().aiServices,
-          aiUsage: docSnap.data().aiUsage,
-          projectExpect: docSnap.data().projectExpect,
-          createdAt: docSnap.data().createdAt,
-          updatedAt: docSnap.data().updatedAt,
-        };
+        return UserInfoEntityConverter.fromFirestore(docSnap.id, docSnap.data());
       } else {
         return null;
       }
@@ -104,7 +89,7 @@ class FireStoreRepository {
       aiServices?: string[] | null;
       aiUsage?: string | null;
       projectExpect?: string | null;
-    }
+    },
   ): Promise<UserInfoEntity | null> {
     try {
       // id取得

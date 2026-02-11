@@ -34,6 +34,11 @@ Admin用のデータベース操作は hosting/repository/FireStoreAdminReposito
 
 データモデルは hosting/model/ フォルダに作成してください。
 作成するEntityには、id, createdAt, updatedAtフィールドを必ず含めてください。
+Firestoreからの変換処理は hosting/util/ フォルダにConverterクラスを作成して実装してください。
+
+## Enum
+
+列挙型は hosting/enum/ フォルダに作成してください。
 
 ## toast
 

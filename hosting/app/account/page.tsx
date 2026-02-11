@@ -4,7 +4,7 @@ import { Button, Spinner, addToast, cn } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
-import { TypingSkillLevel } from "model/UserInfoEntity";
+import { TypingSkillLevel } from "enum/TypingSkillLevel";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
 import { useEffect } from "react";
