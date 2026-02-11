@@ -1,6 +1,6 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
-import { Button } from "@heroui/react";
+import { Button, addToast, cn } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
@@ -92,6 +92,7 @@ export default function AuthPage() {
       setEmail(email);
       setSuccess(true);
       setLoggedIn(true);
+      addToast({ title: "ログインに成功しました。", color: "success" });
     } catch (e) {
       setError("ユーザー情報の登録に失敗しました");
       setLoggedIn(false);
@@ -118,6 +119,14 @@ export default function AuthPage() {
         projectExpect,
       });
       setSuccess(true);
+      addToast({
+        title: "事前アンケートを送信しました。いつでも内容を更新できます。",
+        color: "success",
+        classNames: {
+          base: cn(["break-words", "whitespace-pre-line"]),
+          title: cn(["whitespace-pre-line", "break-words", "text-wrap"]),
+        },
+      });
     } catch (e) {
       setError("ユーザー情報の更新に失敗しました");
     }
@@ -133,6 +142,7 @@ export default function AuthPage() {
     } else {
       setLoggedIn(false);
       setSuccess(false);
+      addToast({ title: "ログアウトしました。", color: "success" });
     }
     setLoadingLogout(false);
   };

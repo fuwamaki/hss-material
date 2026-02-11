@@ -25,3 +25,14 @@ components/ フォルダに勝手にファイルを生成したりしないで�
 
 データベース関連は、hosting/repository/FireStoreRepository.ts を利用・実装してください。
 Admin用のデータベース操作は hosting/repository/FireStoreAdminRepository.ts を利用・実装してください。
+
+## toast
+
+Toastは @heroui/toast を使用してください。
+認証の成功・失敗や、データの保存成功・失敗などのユーザーへの通知にはToastを使用してください。
+
+また、toastは以下のようなstatusはエラーになるので注意してください。
+NG: `addToast({ title: "ログインに成功しました", status: "success" });`
+OK: `addToast({ title: "ログインに成功しました", color: "success" });`
+
+toastの表示は、指示がない限り、基本は "Top Center" 位置にしてください。
