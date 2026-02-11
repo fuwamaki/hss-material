@@ -40,10 +40,17 @@ class FireStoreAdminRepository {
     return snapshot.docs.map((docSnap) => NoticeEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
-  public static async addNotice(title: string, description: string): Promise<string> {
+  public static async addNotice(
+    title: string,
+    description: string,
+    isPublish: boolean,
+    orderId: number,
+  ): Promise<string> {
     const ref = await addDoc(collection(FirebaseConfig.db, this.NoticeCollectionName), {
       title,
       description,
+      isPublish,
+      orderId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
