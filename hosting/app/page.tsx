@@ -51,9 +51,9 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
-                <AccountIcon />
+                <AccountIcon className="white" />
                 <span>アカウント</span>
               </Button>
             </Link>
@@ -64,9 +64,9 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
-                <ChatIcon />
+                <ChatIcon className="white" />
                 <span>質問する</span>
               </Button>
             </Link>
@@ -77,9 +77,9 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-white border-1 border-indigo-200 text-indigo-700 flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
-                <SubmissionIcon />
+                <SubmissionIcon className="white" />
                 <span>提出する</span>
               </Button>
             </Link>
