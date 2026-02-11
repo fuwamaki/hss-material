@@ -35,4 +35,22 @@ Toastは @heroui/toast を使用してください。
 NG: `addToast({ title: "ログインに成功しました", status: "success" });`
 OK: `addToast({ title: "ログインに成功しました", color: "success" });`
 
-toastの表示は、指示がない限り、基本は "Top Center" 位置にしてください。
+## Loading
+
+ローディング表示には HeroUI の Spinner コンポーネントを使用してください。
+API通信中はローディング表示するようにしてください。
+ローディング中は、ユーザーがコンテンツに触れられないように黒透明背景を設置してください。
+
+例:
+
+```tsx
+{isLoading && (
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+    <Spinner
+      color="primary"
+      label="simple"
+      size="lg"
+    />
+  </div>
+)}
+```

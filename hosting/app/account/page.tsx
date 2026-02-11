@@ -1,6 +1,6 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
-import { Button, addToast, cn } from "@heroui/react";
+import { Button, Spinner, addToast, cn } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
@@ -28,6 +28,7 @@ export default function AuthPage() {
   const [aiServices, setAiServices] = useState<string[]>([]);
   const [aiUsage, setAiUsage] = useState("");
   const [projectExpect, setProjectExpect] = useState("");
+  const isLoading = loading || loadingUpdate || loadingLogout;
   useEffect(() => {
     (async () => {
       await FirebaseAuthRepository.initialize();
@@ -148,7 +149,16 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-neutral-100 relative">
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+          <Spinner
+            color="primary"
+            label="simple"
+            size="lg"
+          />
+        </div>
+      )}
       <CommonNavBar title="アカウント" />
       <div className="flex justify-center mt-12">
         <div className="w-full max-w-4xl mx-2">
