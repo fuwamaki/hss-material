@@ -2,28 +2,26 @@
 
 import CommonNavBar from "component/CommonNavBar";
 
-import { Button, Spinner } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { FireStoreRepository } from "repository/FireStoreRepository";
-type NoticeEntity = {
-  id: string;
-  title: string;
-  description: string;
-  isPublish: boolean;
-  orderId: number;
-  createdAt: any;
-  updatedAt: any;
-};
+import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import AccountIcon from "icons/account";
 import ChatIcon from "icons/chat";
 import SubmissionIcon from "icons/submission";
 import Link from "next/link";
+import { NoticeEntity } from "model/NoticeEntity";
 
 const Page = () => {
   const [latestNotice, setLatestNotice] = useState<NoticeEntity | null>(null);
 
   useEffect(() => {
     const fetchLatest = async () => {
+      await FirebaseAuthRepository.initialize();
+      if (!FirebaseAuthRepository.uid) {
+        setLatestNotice(null);
+        return;
+      }
       const notice = await FireStoreRepository.getLatestPublishedNotice();
       setLatestNotice(notice);
     };

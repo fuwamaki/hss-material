@@ -44,6 +44,17 @@ export default function AuthPage() {
   const [aiUsage, setAiUsage] = useState("");
   const [projectExpect, setProjectExpect] = useState("");
   const isLoading = loading || loadingUpdate || loadingLogout;
+  const selectedSeasonId = selectedSeasonKeys.values().next().value;
+  const isFormValid =
+    !!selectedSeasonId &&
+    lastName.trim().length > 0 &&
+    firstName.trim().length > 0 &&
+    lastNameKana.trim().length > 0 &&
+    firstNameKana.trim().length > 0 &&
+    typingSkillLevel !== null &&
+    webSkill.trim().length > 0 &&
+    programmingExp.trim().length > 0 &&
+    projectExpect.trim().length > 0;
 
   useEffect(() => {
     (async () => {
@@ -64,7 +75,9 @@ export default function AuthPage() {
         // Firestoreからユーザー情報取得
         const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
         if (userInfo) {
-          setSelectedSeasonKeys(new Set(userInfo.seasonId ? [userInfo.seasonId] : []));
+          if (userInfo.seasonId) {
+            setSelectedSeasonKeys(new Set([userInfo.seasonId]));
+          }
           setLastName(userInfo.lastName || "");
           setFirstName(userInfo.firstName || "");
           setLastNameKana(userInfo.lastNameKana || "");
@@ -137,10 +150,13 @@ export default function AuthPage() {
   // ユーザー情報更新
   const handleUpdateUserInfo = async () => {
     if (!FirebaseAuthRepository.uid || !email) return;
+    if (!isFormValid) {
+      addToast({ title: "必須項目をすべて入力してください。", color: "warning" });
+      return;
+    }
     setLoadingUpdate(true);
     setError(null);
     try {
-      const selectedSeasonId = selectedSeasonKeys.values().next().value;
       const selectedSeason = seasons.find((s) => s.id === selectedSeasonId) || null;
       await FireStoreRepository.updateUserInfo(FirebaseAuthRepository.uid, {
         seasonId: selectedSeason?.id,
@@ -236,13 +252,17 @@ export default function AuthPage() {
                     selectedKeys={selectedSeasonKeys}
                     onSelectionChange={handleSeasonSelectionChange}
                     disabled={!loggedIn}
+                    isRequired
                   >
                     {seasons.map((season) => (
                       <SelectItem key={season.id}>{season.name}</SelectItem>
                     ))}
                   </Select>
                 </div>
-                <label className="block text-md font-semibold mb-2">1. お名前を教えてください</label>
+                <label className="block text-md font-semibold mb-2">
+                  1. お名前を教えてください
+                  <span className="ml-2 text-xs text-rose-600">*</span>
+                </label>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Input
@@ -253,6 +273,7 @@ export default function AuthPage() {
                       disabled={!loggedIn}
                       label="姓"
                       placeholder="例：山田"
+                      isRequired
                     />
                   </div>
                   <div>
@@ -264,6 +285,7 @@ export default function AuthPage() {
                       disabled={!loggedIn}
                       label="名"
                       placeholder="例：太郎"
+                      isRequired
                     />
                   </div>
                   <div>
@@ -275,6 +297,7 @@ export default function AuthPage() {
                       disabled={!loggedIn}
                       label="姓（ふりがな）"
                       placeholder="例：やまだ"
+                      isRequired
                     />
                   </div>
                   <div>
@@ -286,17 +309,22 @@ export default function AuthPage() {
                       disabled={!loggedIn}
                       label="名（ふりがな）"
                       placeholder="例：たろう"
+                      isRequired
                     />
                   </div>
                 </div>
                 <div className="mt-8">
-                  <label className="block text-md font-semibold mb-2">2. タイピングはできますか？</label>
+                  <label className="block text-md font-semibold mb-2">
+                    2. タイピングはできますか？
+                    <span className="ml-2 text-xs text-rose-600">*</span>
+                  </label>
                   <RadioGroup
                     name="typingSkillLevel"
                     value={typingSkillLevel ? String(typingSkillLevel) : ""}
                     onChange={(e) => setTypingSkillLevel(e.target.value ? Number(e.target.value) : null)}
                     isDisabled={!loggedIn}
                     className="flex flex-col gap-2"
+                    isRequired
                   >
                     <Radio value={String(TypingSkillLevel.BlindTouch)}>ブラインドタッチができる</Radio>
                     <Radio value={String(TypingSkillLevel.KeyboardLooking)}>
@@ -310,13 +338,17 @@ export default function AuthPage() {
                 </div>
                 {/* 3. HTML・CSS・JavaScriptは知っていますか？ */}
                 <div className="mt-8">
-                  <label className="block text-md font-semibold mb-2">3. HTML・CSS・JavaScriptは知っていますか？</label>
+                  <label className="block text-md font-semibold mb-2">
+                    3. HTML・CSS・JavaScriptは知っていますか？
+                    <span className="ml-2 text-xs text-rose-600">*</span>
+                  </label>
                   <RadioGroup
                     name="webSkill"
                     value={webSkill}
                     onChange={(e) => setWebSkill(e.target.value)}
                     isDisabled={!loggedIn}
                     className="flex flex-col gap-2"
+                    isRequired
                   >
                     <Radio value="write">書いたことがある、使ったことがある</Radio>
                     <Radio value="somewhat">何のことか、なんとなく知っている</Radio>
@@ -327,13 +359,17 @@ export default function AuthPage() {
 
                 {/* 4. プログラミング経験 */}
                 <div className="mt-8">
-                  <label className="block text-md font-semibold mb-2">4. プログラミングをしたことがありますか？</label>
+                  <label className="block text-md font-semibold mb-2">
+                    4. プログラミングをしたことがありますか？
+                    <span className="ml-2 text-xs text-rose-600">*</span>
+                  </label>
                   <RadioGroup
                     name="programmingExp"
                     value={programmingExp}
                     onChange={(e) => setProgrammingExp(e.target.value)}
                     isDisabled={!loggedIn}
                     className="flex flex-col gap-2"
+                    isRequired
                   >
                     <Radio value="makeSomething">何かを作ったことがある</Radio>
                     <Radio value="little">ちょっとやったことがある</Radio>
@@ -393,21 +429,26 @@ export default function AuthPage() {
                 <div className="mt-8">
                   <label className="block text-md font-semibold mb-2">
                     7. 本プロジェクトでしたいこと、期待していることを教えてください（自由記述）
+                    <span className="ml-2 text-xs text-rose-600">*</span>
                   </label>
                   <Textarea
                     className="w-full min-h-20"
                     value={projectExpect}
                     onChange={(e) => setProjectExpect(e.target.value)}
                     disabled={!loggedIn}
+                    isRequired
                   />
                 </div>
                 <Button
                   color="primary"
                   variant="solid"
-                  className="mt-8 w-full text-base font-bold"
+                  className={cn(
+                    "mt-8 w-full text-base font-bold",
+                    (!loggedIn || !isFormValid) && "bg-neutral-200 border-neutral-300 text-neutral-400",
+                  )}
                   onPress={handleUpdateUserInfo}
                   isLoading={loadingUpdate}
-                  disabled={!loggedIn}
+                  disabled={!loggedIn || !isFormValid}
                 >
                   決定
                 </Button>
@@ -417,7 +458,7 @@ export default function AuthPage() {
                   className="mt-6 mb-20 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
                   onPress={handleLogout}
                   isLoading={loadingLogout}
-                  disabled={!loggedIn}
+                  isDisabled={!loggedIn}
                 >
                   ログアウト
                 </Button>

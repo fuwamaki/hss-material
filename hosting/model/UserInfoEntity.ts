@@ -4,18 +4,18 @@ export interface UserInfoEntity {
   id: string;
   uid: string;
   email: string;
-  seasonId?: string | null;
-  seasonName?: string | null;
-  lastName?: string | null;
-  firstName?: string | null;
-  lastNameKana?: string | null;
-  firstNameKana?: string | null;
-  typingSkillLevel?: TypingSkillLevel | null;
-  webSkill?: string | null;
-  programmingExp?: string | null;
+  seasonId: string;
+  seasonName: string;
+  lastName: string;
+  firstName: string;
+  lastNameKana: string;
+  firstNameKana: string;
+  typingSkillLevel: TypingSkillLevel;
+  webSkill: string;
+  programmingExp: string;
   aiServices?: string[] | null;
   aiUsage?: string | null;
-  projectExpect?: string | null;
+  projectExpect: string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
