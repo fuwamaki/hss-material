@@ -29,6 +29,8 @@ import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter"
 import { LectureSeasonEntity } from "model/LectureSeasonEntity";
 
 class FireStoreRepository {
+  // UserInfoキャッシュ
+  private static userInfoCache: Map<string, UserInfoEntity | null> = new Map();
   private static readonly UserInfoCollectionName = "user-info-collection";
   private static readonly NoticeCollectionName = "notice-collection";
   private static readonly ChatMessageCollectionName = "chat-message-collection";
@@ -41,6 +43,10 @@ class FireStoreRepository {
    * UserInfo
    */
   public static async getUserInfo(uid: string): Promise<UserInfoEntity | null> {
+    // キャッシュがあれば返す
+    if (this.userInfoCache.has(uid)) {
+      return this.userInfoCache.get(uid) ?? null;
+    }
     try {
       const q = query(
         collection(FirebaseConfig.db, this.UserInfoCollectionName),
@@ -49,12 +55,14 @@ class FireStoreRepository {
         limit(1),
       );
       const querySnapshot = await getDocs(q);
+      let result: UserInfoEntity | null = null;
       if (!querySnapshot.empty) {
         const docSnap = querySnapshot.docs[0];
-        return UserInfoEntityConverter.fromFirestore(docSnap.id, docSnap.data());
-      } else {
-        return null;
+        result = UserInfoEntityConverter.fromFirestore(docSnap.id, docSnap.data());
       }
+      // キャッシュに保存
+      this.userInfoCache.set(uid, result);
+      return result;
     } catch (error) {
       console.error("Error getting userInfo:", error);
       throw error;
@@ -129,7 +137,10 @@ class FireStoreRepository {
         updatedAt: serverTimestamp(),
       });
       console.log("UserInfo updated successfully");
-      return await this.getUserInfo(uid);
+      // 更新後キャッシュも更新
+      const updated = await this.getUserInfo(uid);
+      this.userInfoCache.set(uid, updated);
+      return updated;
     } catch (error) {
       console.error("Error updating userInfo:", error);
       throw error;
