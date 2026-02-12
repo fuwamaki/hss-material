@@ -66,6 +66,7 @@ OK: `addToast({ title: "ログインに成功しました", color: "success" });
 ローディング表示には HeroUI の Spinner コンポーネントを使用してください。
 API通信中はローディング表示するようにしてください。
 ローディング中は、ユーザーがコンテンツに触れられないように黒透明背景を設置してください。
+※labelは `label=""` としてください。
 
 例:
 
@@ -74,7 +75,7 @@ API通信中はローディング表示するようにしてください。
   <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
     <Spinner
       color="primary"
-      label="simple"
+      label=""
       size="lg"
     />
   </div>

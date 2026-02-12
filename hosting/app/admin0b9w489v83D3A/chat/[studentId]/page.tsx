@@ -111,10 +111,10 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
     <AdminAuth>
       <div className="min-h-screen bg-neutral-100 relative">
         {isLoading && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="absolute inset-0 z-50 flex items-center justify-cente">
             <Spinner
               color="primary"
-              label="simple"
+              label=""
               size="lg"
             />
           </div>

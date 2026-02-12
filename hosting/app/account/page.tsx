@@ -221,7 +221,7 @@ export default function AuthPage() {
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
           <Spinner
             color="primary"
-            label="simple"
+            label=""
             size="lg"
           />
         </div>
