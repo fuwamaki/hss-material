@@ -31,6 +31,8 @@ import { LectureSeasonEntity } from "model/LectureSeasonEntity";
 class FireStoreRepository {
   // UserInfoキャッシュ
   private static userInfoCache: Map<string, UserInfoEntity | null> = new Map();
+  // LectureSeasonキャッシュ
+  private static lectureSeasonCache: LectureSeasonEntity[] | null = null;
   private static readonly UserInfoCollectionName = "user-info-collection";
   private static readonly NoticeCollectionName = "notice-collection";
   private static readonly ChatMessageCollectionName = "chat-message-collection";
@@ -151,6 +153,9 @@ class FireStoreRepository {
    * LectureSeason
    */
   public static async getActiveLectureSeasons(): Promise<LectureSeasonEntity[]> {
+    if (this.lectureSeasonCache) {
+      return this.lectureSeasonCache;
+    }
     try {
       const q = query(
         collection(FirebaseConfig.db, "lecture-season-collection"),
@@ -158,13 +163,20 @@ class FireStoreRepository {
         orderBy("createdAt", "asc"),
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map((docSnap) =>
+      const result = querySnapshot.docs.map((docSnap) =>
         LectureSeasonEntityConverter.fromFirestore(docSnap.id, docSnap.data()),
       );
+      this.lectureSeasonCache = result;
+      return result;
     } catch (error) {
       console.error("Error getting active lecture seasons:", error);
       throw error;
     }
+  }
+
+  // シーズンキャッシュをクリアするメソッド（必要に応じて呼び出し）
+  public static clearLectureSeasonCache() {
+    this.lectureSeasonCache = null;
   }
 
   /*
