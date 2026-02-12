@@ -214,10 +214,22 @@ class FireStoreAdminRepository {
     return snapshot.docs.map((docSnap) => DocumentEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
-  public static async addDocument(title: string, body: string): Promise<string> {
+  public static async getDocumentsByType(typeId: number): Promise<DocumentEntity[]> {
+    const q = query(
+      collection(FirebaseConfig.db, this.DocumentCollectionName),
+      where("typeId", "==", typeId),
+      orderBy("orderId", "asc"),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => DocumentEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  }
+
+  public static async addDocument(title: string, body: string, typeId: number, orderId: number): Promise<string> {
     const ref = await addDoc(collection(FirebaseConfig.db, this.DocumentCollectionName), {
       title,
       body,
+      typeId,
+      orderId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
