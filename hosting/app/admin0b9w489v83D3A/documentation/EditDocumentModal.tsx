@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import type { DocumentEntity } from "model/DocumentEntity";
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Tab,
+  Tabs,
+  Textarea,
+} from "@heroui/react";
+import MarkdownPreview from "component/MarkdownPreview";
 
 interface EditDocumentModalProps {
   isOpen: boolean;
@@ -58,13 +70,37 @@ const EditDocumentModal = ({ isOpen, onOpenChange, document, onSubmit, isSubmitt
                   onValueChange={(value) => setOrderId(Number(value) || 1)}
                 />
               </div>
-              <Textarea
-                label="本文"
-                placeholder="本文を入力してください"
-                minRows={8}
-                value={body}
-                onValueChange={setBody}
-              />
+              <Tabs
+                aria-label="本文入力とプレビュー"
+                color="primary"
+                variant="underlined"
+              >
+                <Tab
+                  key="edit"
+                  title="編集"
+                >
+                  <Textarea
+                    label="本文"
+                    placeholder="本文を入力してください"
+                    minRows={20}
+                    maxRows={20}
+                    value={body}
+                    onValueChange={setBody}
+                  />
+                </Tab>
+                <Tab
+                  key="preview"
+                  title="プレビュー"
+                >
+                  <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 max-h-110 overflow-y-auto">
+                    {body.trim() ? (
+                      <MarkdownPreview content={body} />
+                    ) : (
+                      <div className="text-sm text-neutral-500">プレビューする本文がありません。</div>
+                    )}
+                  </div>
+                </Tab>
+              </Tabs>
             </ModalBody>
             <ModalFooter>
               <Button

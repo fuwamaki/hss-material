@@ -2,6 +2,7 @@
 
 import type { DocumentEntity } from "model/DocumentEntity";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import MarkdownPreview from "component/MarkdownPreview";
 
 interface ViewDocumentModalProps {
   isOpen: boolean;
@@ -22,8 +23,11 @@ const ViewDocumentModal = ({ isOpen, onOpenChange, document }: ViewDocumentModal
           <>
             <ModalHeader className="text-lg font-bold">{document?.title || "本文"}</ModalHeader>
             <ModalBody>
-              <div className="whitespace-pre-wrap text-sm text-neutral-700 max-h-[60vh] overflow-y-auto">
-                {document?.body || ""}
+              <div className="max-h-[60vh] overflow-y-auto">
+                <MarkdownPreview
+                  content={document?.body || ""}
+                  className="text-sm text-neutral-700"
+                />
               </div>
             </ModalBody>
             <ModalFooter>
