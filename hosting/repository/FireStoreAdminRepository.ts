@@ -29,6 +29,8 @@ import { DocumentEntityConverter } from "util/DocumentEntityConverter";
 import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter";
 
 class FireStoreAdminRepository {
+  // LectureSeasonキャッシュ
+  private static lectureSeasonCache: LectureSeasonEntity[] | null = null;
   private static readonly UserInfoCollectionName = "user-info-collection";
   private static readonly NoticeCollectionName = "notice-collection";
   private static readonly ChatMessageCollectionName = "chat-message-collection";
@@ -86,9 +88,21 @@ class FireStoreAdminRepository {
    * LectureSeason
    */
   public static async getAllLectureSeason(): Promise<LectureSeasonEntity[]> {
+    if (this.lectureSeasonCache) {
+      return this.lectureSeasonCache;
+    }
     const q = query(collection(FirebaseConfig.db, this.LectureSeasonCollectionName), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((docSnap) => LectureSeasonEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+    const result = snapshot.docs.map((docSnap) =>
+      LectureSeasonEntityConverter.fromFirestore(docSnap.id, docSnap.data()),
+    );
+    this.lectureSeasonCache = result;
+    return result;
+  }
+
+  // シーズンキャッシュをクリアするメソッド
+  public static clearLectureSeasonCache() {
+    this.lectureSeasonCache = null;
   }
 
   public static async addLectureSeason(name: string, isActive: boolean): Promise<string> {
@@ -98,6 +112,7 @@ class FireStoreAdminRepository {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+    this.clearLectureSeasonCache();
     return ref.id;
   }
 
@@ -106,10 +121,12 @@ class FireStoreAdminRepository {
       ...update,
       updatedAt: serverTimestamp(),
     });
+    this.clearLectureSeasonCache();
   }
 
   public static async deleteLectureSeason(id: string): Promise<void> {
     await deleteDoc(doc(FirebaseConfig.db, this.LectureSeasonCollectionName, id));
+    this.clearLectureSeasonCache();
   }
 
   /*
