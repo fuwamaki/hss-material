@@ -14,18 +14,38 @@ import { NoticeEntity } from "model/NoticeEntity";
 
 const Page = () => {
   const [latestNotice, setLatestNotice] = useState<NoticeEntity | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [answered, setAnswered] = useState(true);
 
   useEffect(() => {
-    const fetchLatest = async () => {
+    const fetchStatus = async () => {
       await FirebaseAuthRepository.initialize();
-      if (!FirebaseAuthRepository.uid) {
+      const isLoggedIn = !!FirebaseAuthRepository.uid;
+      setLoggedIn(isLoggedIn);
+      if (isLoggedIn) {
+        // 事前アンケート回答有無チェック
+        const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
+        setAnswered(
+          !!(
+            userInfo &&
+            userInfo.lastName &&
+            userInfo.firstName &&
+            userInfo.lastNameKana &&
+            userInfo.firstNameKana &&
+            userInfo.typingSkillLevel !== undefined &&
+            userInfo.webSkill &&
+            userInfo.programmingExp &&
+            userInfo.projectExpect
+          ),
+        );
+        const notice = await FireStoreRepository.getLatestPublishedNotice();
+        setLatestNotice(notice);
+      } else {
+        setAnswered(false);
         setLatestNotice(null);
-        return;
       }
-      const notice = await FireStoreRepository.getLatestPublishedNotice();
-      setLatestNotice(notice);
     };
-    fetchLatest();
+    fetchStatus();
   }, []);
 
   return (
@@ -33,24 +53,28 @@ const Page = () => {
       <CommonNavBar title="AIプログラミング体験" />
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-6xl mx-2">
-          <Link href="/account">
-            <Button
-              color="primary"
-              variant="solid"
-              className="w-full font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
-            >
-              登録・ログインはこちら
-            </Button>
-          </Link>
-          <Link href="/account">
-            <Button
-              color="primary"
-              variant="solid"
-              className="w-full mt-4 font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
-            >
-              事前アンケートに回答をお願いします
-            </Button>
-          </Link>
+          {!loggedIn && (
+            <Link href="/account">
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
+              >
+                登録・ログインはこちら
+              </Button>
+            </Link>
+          )}
+          {loggedIn && !answered && (
+            <Link href="/account">
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full mt-4 font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
+              >
+                事前アンケートに回答をお願いします
+              </Button>
+            </Link>
+          )}
           {/* 最新お知らせ */}
           {latestNotice && (
             <div className="my-4">
