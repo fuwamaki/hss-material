@@ -1,5 +1,16 @@
 import { FirebaseConfig } from "./FirebaseConfig";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 import type { UserInfoEntity } from "model/UserInfoEntity";
 import type { NoticeEntity } from "model/NoticeEntity";
 import type { ChatMessageEntity } from "model/ChatMessageEntity";
@@ -72,11 +83,13 @@ class FireStoreAdminRepository {
    * ChatMessage
    */
   public static async getChatMessagesByStudentId(studentId: string): Promise<ChatMessageEntity[]> {
-    const q = collection(FirebaseConfig.db, this.ChatMessageCollectionName);
+    const q = query(
+      collection(FirebaseConfig.db, this.ChatMessageCollectionName),
+      where("studentId", "==", studentId),
+      orderBy("createdAt", "asc"),
+    );
     const snapshot = await getDocs(q);
-    return snapshot.docs
-      .map((docSnap) => ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()))
-      .filter((msg) => msg.studentId === studentId);
+    return snapshot.docs.map((docSnap) => ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
   public static async sendTeacherChatMessage(studentId: string, message: string): Promise<string> {
