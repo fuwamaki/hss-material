@@ -150,6 +150,33 @@ const Page = () => {
               </Button>
             </Link>
           </div>
+          <Link href="/docs-setup">
+            <Button
+              color="primary"
+              variant="solid"
+              className="w-full mt-6 h-14 font-bold text-md bg-indigo-50 border-1 border-indigo-500 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+            >
+              Step1: AIプログラミングできるようにPCをセットアップしよう
+            </Button>
+          </Link>
+          <Link href="/docs-common-issue">
+            <Button
+              color="primary"
+              variant="solid"
+              className="w-full mt-4 h-14 font-bold text-md bg-indigo-50 border-1 border-indigo-500 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+            >
+              Step2: AIプログラミングに慣れるための共通課題
+            </Button>
+          </Link>
+          <Link href="/docs-original-plan">
+            <Button
+              color="primary"
+              variant="solid"
+              className="w-full mt-4 h-14 font-bold text-md bg-indigo-50 border-1 border-indigo-500 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+            >
+              Step3: オリジナルWebサイトをつくろう
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
