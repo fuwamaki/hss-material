@@ -111,6 +111,44 @@ const Page = () => {
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3">
             <Link
+              href="/documentation/start"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-20 font-bold text-md bg-indigo-100 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+              >
+                <span>初日説明資料</span>
+              </Button>
+            </Link>
+            <Link
+              href="/documentation/faq"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-20 font-bold text-md bg-indigo-100 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+              >
+                <span>FAQ</span>
+              </Button>
+            </Link>
+            <Link
+              href="/documentation/original-plan"
+              className="w-full"
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full h-20 font-bold text-md bg-indigo-100 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+              >
+                <span>最終日資料</span>
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <Link
               href="/account"
               className="w-full"
             >
@@ -150,7 +188,7 @@ const Page = () => {
               </Button>
             </Link>
           </div>
-          <Link href="/docs-setup">
+          <Link href="/documentation/setup">
             <Button
               color="primary"
               variant="solid"
@@ -159,7 +197,7 @@ const Page = () => {
               Step1: AIプログラミングできるようにPCをセットアップしよう
             </Button>
           </Link>
-          <Link href="/docs-common-issue">
+          <Link href="/documentation/common-issue">
             <Button
               color="primary"
               variant="solid"
@@ -168,7 +206,7 @@ const Page = () => {
               Step2: AIプログラミングに慣れるための共通課題
             </Button>
           </Link>
-          <Link href="/docs-original-plan">
+          <Link href="/documentation/original-plan">
             <Button
               color="primary"
               variant="solid"

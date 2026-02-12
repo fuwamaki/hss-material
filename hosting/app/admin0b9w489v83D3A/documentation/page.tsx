@@ -1,12 +1,12 @@
 "use client";
-import CommonNavBar from "component/CommonNavBar";
 import AdminAuth from "../AdminAuth";
+import AdminNavBar from "component/AdminNavBar";
 
 const Page = () => {
   return (
     <AdminAuth>
       <div>
-        <CommonNavBar title={"サンプルページ"} />
+        <AdminNavBar title={"サンプルページ"} />
       </div>
     </AdminAuth>
   );
