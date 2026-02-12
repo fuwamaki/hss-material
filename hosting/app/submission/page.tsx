@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CommonNavBar from "component/CommonNavBar";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
@@ -17,10 +17,15 @@ const Page = () => {
   const [uid, setUid] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [latestPlay, setLatestPlay] = useState<SubmissionOriginalPlayEntity | null>(null);
   const [latestSite, setLatestSite] = useState<SubmissionOriginalSiteEntity | null>(null);
   const [latestQuiz, setLatestQuiz] = useState<SubmissionQuizEntity | null>(null);
   const isLoading = loading || submitting;
+  const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isReady = hasLoaded;
 
   const fetchLatest = async (studentId: string) => {
     setLoading(true);
@@ -38,6 +43,7 @@ const Page = () => {
       addToast({ title: "提出情報の取得に失敗しました。", color: "danger" });
     } finally {
       setLoading(false);
+      setHasLoaded(true);
     }
   };
 
@@ -49,9 +55,34 @@ const Page = () => {
         await fetchLatest(FirebaseAuthRepository.uid);
       } else {
         setUid(null);
+        setHasLoaded(true);
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+      loadingTimeoutRef.current = setTimeout(() => {
+        setShowLoading(true);
+      }, 250);
+    } else {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      setShowLoading(false);
+    }
+
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, [isLoading]);
 
   const handleSubmitPlay = async (payload: { title: string; targetUser: string; userStory: string }) => {
     if (!uid) return;
@@ -109,8 +140,8 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-neutral-100 relative">
-      {isLoading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+      {(!isReady || showLoading) && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center">
           <Spinner
             color="primary"
             label=""
@@ -118,57 +149,61 @@ const Page = () => {
           />
         </div>
       )}
-      <CommonNavBar title="提出" />
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {!uid ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
-            <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
-            <div className="text-sm text-neutral-600 mb-4">提出するには、アカウントでログインしてください。</div>
-            <Link href="/account">
-              <Button color="primary">アカウントページへ</Button>
-            </Link>
+      {isReady && (
+        <>
+          <CommonNavBar title="提出" />
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            {!uid ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
+                <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
+                <div className="text-sm text-neutral-600 mb-4">提出するには、アカウントでログインしてください。</div>
+                <Link href="/account">
+                  <Button color="primary">アカウントページへ</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                <Tabs
+                  aria-label="提出タブ"
+                  color="primary"
+                  variant="underlined"
+                >
+                  <Tab
+                    key="quiz"
+                    title="共通課題:クイズ"
+                  >
+                    <SubmissionQuizForm
+                      initial={latestQuiz}
+                      isSubmitting={submitting}
+                      onSubmit={handleSubmitQuiz}
+                    />
+                  </Tab>
+                  <Tab
+                    key="play"
+                    title="オリジナルサイト企画"
+                  >
+                    <SubmissionOriginalPlayForm
+                      initial={latestPlay}
+                      isSubmitting={submitting}
+                      onSubmit={handleSubmitPlay}
+                    />
+                  </Tab>
+                  <Tab
+                    key="site"
+                    title="オリジナルサイト"
+                  >
+                    <SubmissionOriginalSiteForm
+                      initial={latestSite}
+                      isSubmitting={submitting}
+                      onSubmit={handleSubmitSite}
+                    />
+                  </Tab>
+                </Tabs>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-            <Tabs
-              aria-label="提出タブ"
-              color="primary"
-              variant="underlined"
-            >
-              <Tab
-                key="quiz"
-                title="共通課題:クイズ"
-              >
-                <SubmissionQuizForm
-                  initial={latestQuiz}
-                  isSubmitting={submitting}
-                  onSubmit={handleSubmitQuiz}
-                />
-              </Tab>
-              <Tab
-                key="play"
-                title="オリジナルサイト企画"
-              >
-                <SubmissionOriginalPlayForm
-                  initial={latestPlay}
-                  isSubmitting={submitting}
-                  onSubmit={handleSubmitPlay}
-                />
-              </Tab>
-              <Tab
-                key="site"
-                title="オリジナルサイト"
-              >
-                <SubmissionOriginalSiteForm
-                  initial={latestSite}
-                  isSubmitting={submitting}
-                  onSubmit={handleSubmitSite}
-                />
-              </Tab>
-            </Tabs>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

@@ -14,9 +14,12 @@ const Page = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const unsubscribeRef = useRef<null | (() => void)>(null);
 
   const isLoading = loading || sending;
+  const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startMessagesListener = (targetUid: string) => {
     setLoading(true);
@@ -28,10 +31,12 @@ const Page = () => {
       (data) => {
         setMessages(data);
         setLoading(false);
+        setIsReady(true);
       },
       () => {
         addToast({ title: "メッセージの取得に失敗しました。", color: "danger" });
         setLoading(false);
+        setIsReady(true);
       },
     );
   };
@@ -44,6 +49,7 @@ const Page = () => {
         startMessagesListener(FirebaseAuthRepository.uid);
       } else {
         setUid(null);
+        setIsReady(true);
       }
     })();
     return () => {
@@ -52,6 +58,30 @@ const Page = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+      loadingTimeoutRef.current = setTimeout(() => {
+        setShowLoading(true);
+      }, 250);
+    } else {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      setShowLoading(false);
+    }
+
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, [isLoading]);
 
   const handleSend = async () => {
     if (!uid) return;
@@ -95,8 +125,8 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-neutral-100 relative">
-      {isLoading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
+      {(!isReady || showLoading) && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center">
           <Spinner
             color="primary"
             label=""
@@ -104,81 +134,85 @@ const Page = () => {
           />
         </div>
       )}
-      <CommonNavBar title="講師に質問" />
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {!uid ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
-            <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
-            <div className="text-sm text-neutral-600 mb-4">質問するには、アカウントでログインしてください。</div>
-            <Link href="/account">
-              <Button color="primary">アカウントページへ</Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-              <div className="flex items-center mb-3">
-                <div className="text-lg font-bold text-neutral-800">チャット</div>
-                <Button
-                  variant="flat"
-                  color="primary"
-                  onPress={() => startMessagesListener(uid)}
-                  className="ml-3"
-                >
-                  更新
-                </Button>
+      {isReady && (
+        <>
+          <CommonNavBar title="講師に質問" />
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            {!uid ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
+                <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
+                <div className="text-sm text-neutral-600 mb-4">質問するには、アカウントでログインしてください。</div>
+                <Link href="/account">
+                  <Button color="primary">アカウントページへ</Button>
+                </Link>
               </div>
-              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                {sortedMessages.length === 0 ? (
-                  <div className="text-sm text-neutral-500">まだメッセージはありません。</div>
-                ) : (
-                  sortedMessages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.senderRole === "student" ? "justify-end" : "justify-start"}`}
+            ) : (
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+                  <div className="flex items-center mb-3">
+                    <div className="text-lg font-bold text-neutral-800">チャット</div>
+                    <Button
+                      variant="flat"
+                      color="primary"
+                      onPress={() => startMessagesListener(uid)}
+                      className="ml-3"
                     >
-                      <div
-                        className={`max-w-[80%] rounded-lg px-3 py-2 text-sm whitespace-pre-line ${
-                          msg.senderRole === "student"
-                            ? "bg-indigo-500 text-white"
-                            : "bg-neutral-100 text-neutral-800 border border-neutral-200"
-                        }`}
-                      >
-                        <div>{msg.message}</div>
+                      更新
+                    </Button>
+                  </div>
+                  <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                    {sortedMessages.length === 0 ? (
+                      <div className="text-sm text-neutral-500">まだメッセージはありません。</div>
+                    ) : (
+                      sortedMessages.map((msg) => (
                         <div
-                          className={`mt-1 text-[10px] ${
-                            msg.senderRole === "student" ? "text-indigo-100" : "text-neutral-500"
-                          }`}
+                          key={msg.id}
+                          className={`flex ${msg.senderRole === "student" ? "justify-end" : "justify-start"}`}
                         >
-                          {formatDate(msg.createdAt)}
+                          <div
+                            className={`max-w-[80%] rounded-lg px-3 py-2 text-sm whitespace-pre-line ${
+                              msg.senderRole === "student"
+                                ? "bg-indigo-500 text-white"
+                                : "bg-neutral-100 text-neutral-800 border border-neutral-200"
+                            }`}
+                          >
+                            <div>{msg.message}</div>
+                            <div
+                              className={`mt-1 text-[10px] ${
+                                msg.senderRole === "student" ? "text-indigo-100" : "text-neutral-500"
+                              }`}
+                            >
+                              {formatDate(msg.createdAt)}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+                      ))
+                    )}
+                  </div>
+                </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-              <Textarea
-                className="my-2"
-                minRows={4}
-                placeholder="Aa"
-                value={message}
-                onValueChange={setMessage}
-              />
-              <div className="mt-4 flex justify-end">
-                <Button
-                  color="primary"
-                  onPress={handleSend}
-                >
-                  送信
-                </Button>
+                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+                  <Textarea
+                    className="my-2"
+                    minRows={4}
+                    placeholder="Aa"
+                    value={message}
+                    onValueChange={setMessage}
+                  />
+                  <div className="mt-4 flex justify-end">
+                    <Button
+                      color="primary"
+                      onPress={handleSend}
+                    >
+                      送信
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
