@@ -4,12 +4,15 @@ import AdminNavBar from "component/AdminNavBar";
 import AdminAuth from "../AdminAuth";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { NoticeEntity } from "model/NoticeEntity";
+import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 import EditNoticeModal from "./EditNoticeModal";
 import {
   Button,
   Input,
   Textarea,
   Switch,
+  Select,
+  SelectItem,
   Table,
   TableHeader,
   TableColumn,
@@ -24,10 +27,12 @@ import { addToast } from "@heroui/toast";
 const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [notices, setNotices] = useState<NoticeEntity[]>([]);
+  const [seasons, setSeasons] = useState<LectureSeasonEntity[]>([]);
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isPublish, setIsPublish] = useState(true);
-  const [orderId, setOrderId] = useState<number>(1);
+  const [orderId, setOrderId] = useState<number>(0);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<NoticeEntity | null>(null);
 
@@ -43,19 +48,39 @@ const Page = () => {
     }
   };
 
+  const fetchSeasons = async () => {
+    try {
+      const data = await FireStoreAdminRepository.getAllLectureSeason();
+      setSeasons(data);
+      if (!selectedSeasonId && data.length > 0) {
+        setSelectedSeasonId(data[0].id);
+      }
+    } catch (e) {
+      addToast({ title: "シーズンの取得に失敗しました。", color: "danger" });
+    }
+  };
+
   useEffect(() => {
     fetchNotices();
+    fetchSeasons();
   }, []);
 
   const sortedNotices = useMemo(() => {
     return [...notices].sort((a, b) => (a.orderId ?? 0) - (b.orderId ?? 0));
   }, [notices]);
 
+  const seasonMap = useMemo(() => {
+    return new Map(seasons.map((season) => [season.id, season.name]));
+  }, [seasons]);
+
   const resetForm = () => {
     setTitle("");
     setDescription("");
     setIsPublish(true);
-    setOrderId(1);
+    setOrderId(0);
+    if (seasons.length > 0) {
+      setSelectedSeasonId(seasons[0].id);
+    }
   };
 
   const handleAdd = async () => {
@@ -63,9 +88,13 @@ const Page = () => {
       addToast({ title: "タイトルを入力してください。", color: "warning" });
       return;
     }
+    if (!selectedSeasonId) {
+      addToast({ title: "シーズンを選択してください。", color: "warning" });
+      return;
+    }
     setIsLoading(true);
     try {
-      await FireStoreAdminRepository.addNotice(title.trim(), description.trim(), isPublish, orderId);
+      await FireStoreAdminRepository.addNotice(title.trim(), description.trim(), isPublish, orderId, selectedSeasonId);
       addToast({ title: "お知らせを追加しました。", color: "success" });
       resetForm();
       await fetchNotices();
@@ -81,10 +110,20 @@ const Page = () => {
     setIsEditOpen(true);
   };
 
-  const handleUpdate = async (payload: { title: string; description: string; isPublish: boolean; orderId: number }) => {
+  const handleUpdate = async (payload: {
+    title: string;
+    description: string;
+    isPublish: boolean;
+    orderId: number;
+    seasonId: string;
+  }) => {
     if (!editTarget) return;
     if (!payload.title.trim()) {
       addToast({ title: "タイトルを入力してください。", color: "warning" });
+      return;
+    }
+    if (!payload.seasonId) {
+      addToast({ title: "シーズンを選択してください。", color: "warning" });
       return;
     }
     setIsLoading(true);
@@ -94,6 +133,7 @@ const Page = () => {
         description: payload.description.trim(),
         isPublish: payload.isPublish,
         orderId: payload.orderId,
+        seasonId: payload.seasonId,
       });
       addToast({ title: "お知らせを更新しました。", color: "success" });
       setIsEditOpen(false);
@@ -152,7 +192,21 @@ const Page = () => {
         <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
             <div className="text-lg font-bold text-neutral-800 mb-4">追加フォーム</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Select
+                label="シーズン"
+                placeholder="選択してください"
+                selectedKeys={selectedSeasonId ? new Set([selectedSeasonId]) : new Set()}
+                onSelectionChange={(keys) => {
+                  if (keys === "all") return;
+                  const value = Array.from(keys)[0];
+                  setSelectedSeasonId(value ? String(value) : "");
+                }}
+              >
+                {seasons.map((season) => (
+                  <SelectItem key={season.id}>{season.name}</SelectItem>
+                ))}
+              </Select>
               <Input
                 label="タイトル"
                 placeholder="例：第1回の授業について"
@@ -163,7 +217,7 @@ const Page = () => {
                 label="表示順"
                 type="number"
                 value={String(orderId)}
-                onValueChange={(value) => setOrderId(Number(value) || 1)}
+                onValueChange={(value) => setOrderId(Number(value) || 0)}
               />
             </div>
             <div className="mt-4">
@@ -198,6 +252,7 @@ const Page = () => {
             <Table aria-label="お知らせ一覧">
               <TableHeader>
                 <TableColumn>表示順</TableColumn>
+                <TableColumn>シーズン</TableColumn>
                 <TableColumn>タイトル</TableColumn>
                 <TableColumn>公開</TableColumn>
                 <TableColumn>更新日時</TableColumn>
@@ -210,6 +265,7 @@ const Page = () => {
                 {(item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.orderId ?? "-"}</TableCell>
+                    <TableCell>{seasonMap.get(item.seasonId) ?? "-"}</TableCell>
                     <TableCell>
                       <div className="font-semibold text-neutral-800">{item.title}</div>
                       <div className="text-xs text-neutral-500 line-clamp-2 mt-1">{item.description}</div>
@@ -260,6 +316,7 @@ const Page = () => {
           notice={editTarget}
           onSubmit={handleUpdate}
           isSubmitting={isLoading}
+          seasons={seasons}
         />
       </div>
     </AdminAuth>

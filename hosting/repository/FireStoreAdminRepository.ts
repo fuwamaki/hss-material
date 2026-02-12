@@ -61,12 +61,14 @@ class FireStoreAdminRepository {
     description: string,
     isPublish: boolean,
     orderId: number,
+    seasonId: string,
   ): Promise<string> {
     const ref = await addDoc(collection(FirebaseConfig.db, this.NoticeCollectionName), {
       title,
       description,
       isPublish,
       orderId,
+      seasonId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

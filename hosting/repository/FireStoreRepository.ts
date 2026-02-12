@@ -182,14 +182,21 @@ class FireStoreRepository {
   /*
    * Notice
    */
-  public static async getAllNotice(): Promise<NoticeEntity[]> {
-    const snapshot = await getDocs(collection(FirebaseConfig.db, this.NoticeCollectionName));
+  public static async getAllNotice(seasonId: string): Promise<NoticeEntity[]> {
+    const q = query(
+      collection(FirebaseConfig.db, this.NoticeCollectionName),
+      where("seasonId", "==", seasonId),
+      where("isPublish", "==", true),
+      orderBy("orderId", "desc"),
+    );
+    const snapshot = await getDocs(q);
     return snapshot.docs.map((docSnap) => NoticeEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
-  public static async getLatestPublishedNotice(): Promise<NoticeEntity | null> {
+  public static async getLatestPublishedNotice(seasonId: string): Promise<NoticeEntity | null> {
     const q = query(
       collection(FirebaseConfig.db, this.NoticeCollectionName),
+      where("seasonId", "==", seasonId),
       where("isPublish", "==", true),
       orderBy("orderId", "desc"),
       limit(1),

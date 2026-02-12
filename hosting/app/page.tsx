@@ -38,8 +38,12 @@ const Page = () => {
             userInfo.projectExpect
           ),
         );
-        const notice = await FireStoreRepository.getLatestPublishedNotice();
-        setLatestNotice(notice);
+        if (userInfo?.seasonId) {
+          const notice = await FireStoreRepository.getLatestPublishedNotice(userInfo.seasonId);
+          setLatestNotice(notice);
+        } else {
+          setLatestNotice(null);
+        }
       } else {
         setAnswered(false);
         setLatestNotice(null);
