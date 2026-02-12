@@ -28,6 +28,9 @@ components/ フォルダに勝手にファイルを生成したりしないで�
 /admin0b9w489v83D3A 以下は管理者ページです。
 /admin0b9w489v83D3A 以下でページを作成する場合は、必ずAdminAuthを用いた管理者認証を実装してください。
 
+admin画面にてItemの一覧表示・追加・更新・削除を行う際、
+更新についてはポップアップを表示して行うようにしてください。また、ポップアップはpage.tsxとは別ファイルに切り出してください。
+
 ## Firebase Auth
 
 認証関連は、hosting/repository/FirebaseAuthRepository.ts を利用・実装してください。

@@ -8,6 +8,7 @@ import NotifyIcon from "icons/notify";
 import ProgressIcon from "icons/progress";
 import ChatIcon from "icons/chat";
 import SubmissionIcon from "icons/submission";
+import SeasonIcon from "icons/season";
 import Link from "next/link";
 
 const Page = () => {
@@ -96,6 +97,21 @@ const Page = () => {
                 >
                   <SubmissionIcon className="white" />
                   <span>提出管理</span>
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <Link
+                href="/admin0b9w489v83D3A/season"
+                className="w-full"
+              >
+                <Button
+                  color="primary"
+                  variant="solid"
+                  className="w-full h-28 font-bold bg-linear-to-tr from-teal-400 to-teal-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
+                >
+                  <SeasonIcon className="white" />
+                  <span>シーズン管理</span>
                 </Button>
               </Link>
             </div>

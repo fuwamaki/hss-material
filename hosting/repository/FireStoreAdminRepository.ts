@@ -18,6 +18,7 @@ import type { SubmissionOriginalPlayEntity } from "model/SubmissionOriginalPlayE
 import type { SubmissionOriginalSiteEntity } from "model/SubmissionOriginalSiteEntity";
 import type { SubmissionQuizEntity } from "model/SubmissionQuizEntity";
 import type { DocumentEntity } from "model/DocumentEntity";
+import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 import { UserInfoEntityConverter } from "util/UserInfoEntityConverter";
 import { NoticeEntityConverter } from "util/NoticeEntityConverter";
 import { ChatMessageEntityConverter } from "util/ChatMessageEntityConverter";
@@ -25,6 +26,7 @@ import { SubmissionOriginalPlayEntityConverter } from "util/SubmissionOriginalPl
 import { SubmissionOriginalSiteEntityConverter } from "util/SubmissionOriginalSiteEntityConverter";
 import { SubmissionQuizEntityConverter } from "util/SubmissionQuizEntityConverter";
 import { DocumentEntityConverter } from "util/DocumentEntityConverter";
+import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter";
 
 class FireStoreAdminRepository {
   private static readonly UserInfoCollectionName = "user-info-collection";
@@ -34,6 +36,7 @@ class FireStoreAdminRepository {
   private static readonly SubmissionOriginalSiteCollectionName = "submission-original-site-collection";
   private static readonly SubmissionQuizCollectionName = "submission-quiz-collection";
   private static readonly DocumentCollectionName = "document-collection";
+  private static readonly LectureSeasonCollectionName = "lecture-season-collection";
 
   /*
    * UserInfo
@@ -77,6 +80,36 @@ class FireStoreAdminRepository {
 
   public static async deleteNotice(id: string): Promise<void> {
     await deleteDoc(doc(FirebaseConfig.db, this.NoticeCollectionName, id));
+  }
+
+  /*
+   * LectureSeason
+   */
+  public static async getAllLectureSeason(): Promise<LectureSeasonEntity[]> {
+    const q = query(collection(FirebaseConfig.db, this.LectureSeasonCollectionName), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => LectureSeasonEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  }
+
+  public static async addLectureSeason(name: string, isActive: boolean): Promise<string> {
+    const ref = await addDoc(collection(FirebaseConfig.db, this.LectureSeasonCollectionName), {
+      name,
+      isActive,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  public static async updateLectureSeason(id: string, update: Partial<LectureSeasonEntity>): Promise<void> {
+    await updateDoc(doc(FirebaseConfig.db, this.LectureSeasonCollectionName, id), {
+      ...update,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  public static async deleteLectureSeason(id: string): Promise<void> {
+    await deleteDoc(doc(FirebaseConfig.db, this.LectureSeasonCollectionName, id));
   }
 
   /*
