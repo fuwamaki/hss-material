@@ -219,6 +219,16 @@ class FireStoreRepository {
     return DocumentEntityConverter.fromFirestore(snap.docs[0].id, snap.docs[0].data());
   }
 
+  public static async getDocumentsByType(typeId: number): Promise<DocumentEntity[]> {
+    const q = query(
+      collection(FirebaseConfig.db, this.DocumentCollectionName),
+      where("typeId", "==", typeId),
+      orderBy("orderId", "asc"),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => DocumentEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  }
+
   /*
    * ChatMessage
    */
