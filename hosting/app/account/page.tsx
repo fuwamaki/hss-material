@@ -1,6 +1,6 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
-import { Button, Spinner, addToast, cn } from "@heroui/react";
+import { Button, Spinner, addToast, cn, Input, Textarea, Radio, Checkbox, RadioGroup } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
 import { useState } from "react";
@@ -190,221 +190,124 @@ export default function AuthPage() {
               <div className="mt-4 text-center text-base font-semibold">
                 {email && <span>メールアドレス: {email}</span>}
               </div>
-              <div className="mt-8 mb-4 text-lg font-bold text-left text-neutral-700">事前アンケート</div>
-              <label className="block text-md font-semibold mb-2">① お名前を教えてください</label>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">姓</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded px-3 py-2 bg-white"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    disabled={!loggedIn}
-                  />
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mt-8 mb-4">
+                <div className="text-lg font-bold text-neutral-800 mb-4">事前アンケート</div>
+                <label className="block text-md font-semibold mb-2">1. お名前を教えてください</label>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      disabled={!loggedIn}
+                      label="姓"
+                      placeholder="例：山田"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      disabled={!loggedIn}
+                      label="名"
+                      placeholder="例：太郎"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      id="lastNameKana"
+                      type="text"
+                      value={lastNameKana}
+                      onChange={(e) => setLastNameKana(e.target.value)}
+                      disabled={!loggedIn}
+                      label="姓（ふりがな）"
+                      placeholder="例：やまだ"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      id="firstNameKana"
+                      type="text"
+                      value={firstNameKana}
+                      onChange={(e) => setFirstNameKana(e.target.value)}
+                      disabled={!loggedIn}
+                      label="名（ふりがな）"
+                      placeholder="例：たろう"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">名</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded px-3 py-2 bg-white"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    disabled={!loggedIn}
-                  />
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">2. タイピングはできますか？</label>
+                  <RadioGroup
+                    name="typingSkillLevel"
+                    value={typingSkillLevel ? String(typingSkillLevel) : ""}
+                    onChange={(e) => setTypingSkillLevel(e.target.value ? Number(e.target.value) : null)}
+                    isDisabled={!loggedIn}
+                    className="flex flex-col gap-2"
+                  >
+                    <Radio value={String(TypingSkillLevel.BlindTouch)}>ブラインドタッチができる</Radio>
+                    <Radio value={String(TypingSkillLevel.KeyboardLooking)}>
+                      キーボードを見ながら、タイピングできる
+                    </Radio>
+                    <Radio value={String(TypingSkillLevel.KeyboardAndChart)}>
+                      キーボードとローマ字表を見ながら、タイピングできる
+                    </Radio>
+                    <Radio value={String(TypingSkillLevel.NotSure)}>タイピングが何のことか分からない</Radio>
+                  </RadioGroup>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">姓（ふりがな）</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded px-3 py-2 bg-white"
-                    value={lastNameKana}
-                    onChange={(e) => setLastNameKana(e.target.value)}
-                    disabled={!loggedIn}
-                  />
+                {/* 3. HTML・CSS・JavaScriptは知っていますか？ */}
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">3. HTML・CSS・JavaScriptは知っていますか？</label>
+                  <RadioGroup
+                    name="webSkill"
+                    value={webSkill}
+                    onChange={(e) => setWebSkill(e.target.value)}
+                    isDisabled={!loggedIn}
+                    className="flex flex-col gap-2"
+                  >
+                    <Radio value="write">書いたことがある、使ったことがある</Radio>
+                    <Radio value="somewhat">何のことか、なんとなく知っている</Radio>
+                    <Radio value="nameOnly">名称を聞いたことはある</Radio>
+                    <Radio value="none">聞いたことない</Radio>
+                  </RadioGroup>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">名（ふりがな）</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded px-3 py-2 bg-white"
-                    value={firstNameKana}
-                    onChange={(e) => setFirstNameKana(e.target.value)}
-                    disabled={!loggedIn}
-                  />
-                </div>
-              </div>
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">② タイピングはできますか？</label>
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="typingSkillLevel"
-                      value={TypingSkillLevel.BlindTouch}
-                      checked={typingSkillLevel === TypingSkillLevel.BlindTouch}
-                      onChange={() => setTypingSkillLevel(TypingSkillLevel.BlindTouch)}
-                      disabled={!loggedIn}
-                    />
-                    ブラインドタッチができる
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="typingSkillLevel"
-                      value={TypingSkillLevel.KeyboardLooking}
-                      checked={typingSkillLevel === TypingSkillLevel.KeyboardLooking}
-                      onChange={() => setTypingSkillLevel(TypingSkillLevel.KeyboardLooking)}
-                      disabled={!loggedIn}
-                    />
-                    キーボードを見ながら、タイピングできる
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="typingSkillLevel"
-                      value={TypingSkillLevel.KeyboardAndChart}
-                      checked={typingSkillLevel === TypingSkillLevel.KeyboardAndChart}
-                      onChange={() => setTypingSkillLevel(TypingSkillLevel.KeyboardAndChart)}
-                      disabled={!loggedIn}
-                    />
-                    キーボードとローマ字表を見ながら、タイピングできる
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="typingSkillLevel"
-                      value={TypingSkillLevel.NotSure}
-                      checked={typingSkillLevel === TypingSkillLevel.NotSure}
-                      onChange={() => setTypingSkillLevel(TypingSkillLevel.NotSure)}
-                      disabled={!loggedIn}
-                    />
-                    タイピングが何のことか分からない
-                  </label>
-                </div>
-              </div>
-              {/* ③ HTML・CSS・JavaScriptは知っていますか？ */}
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">③ HTML・CSS・JavaScriptは知っていますか？</label>
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="webSkill"
-                      value="write"
-                      checked={webSkill === "write"}
-                      onChange={() => setWebSkill("write")}
-                      disabled={!loggedIn}
-                    />
-                    書いたことがある、使ったことがある
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="webSkill"
-                      value="somewhat"
-                      checked={webSkill === "somewhat"}
-                      onChange={() => setWebSkill("somewhat")}
-                      disabled={!loggedIn}
-                    />
-                    何のことか、なんとなく知っている
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="webSkill"
-                      value="nameOnly"
-                      checked={webSkill === "nameOnly"}
-                      onChange={() => setWebSkill("nameOnly")}
-                      disabled={!loggedIn}
-                    />
-                    名称を聞いたことはある
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="webSkill"
-                      value="none"
-                      checked={webSkill === "none"}
-                      onChange={() => setWebSkill("none")}
-                      disabled={!loggedIn}
-                    />
-                    聞いたことない
-                  </label>
-                </div>
-              </div>
 
-              {/* ④ プログラミング経験 */}
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">④ プログラミングをしたことがありますか？</label>
-                <div className="flex flex-col gap-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="programmingExp"
-                      value="makeSomething"
-                      checked={programmingExp === "makeSomething"}
-                      onChange={() => setProgrammingExp("makeSomething")}
-                      disabled={!loggedIn}
-                    />
-                    何かを作ったことがある
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="programmingExp"
-                      value="little"
-                      checked={programmingExp === "little"}
-                      onChange={() => setProgrammingExp("little")}
-                      disabled={!loggedIn}
-                    />
-                    ちょっとやったことがある
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="programmingExp"
-                      value="schoolOnly"
-                      checked={programmingExp === "schoolOnly"}
-                      onChange={() => setProgrammingExp("schoolOnly")}
-                      disabled={!loggedIn}
-                    />
-                    授業などでやったことがあるが、未経験と言っても過言ではない
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="programmingExp"
-                      value="none"
-                      checked={programmingExp === "none"}
-                      onChange={() => setProgrammingExp("none")}
-                      disabled={!loggedIn}
-                    />
-                    プログラミングに関わったことがない
-                  </label>
+                {/* 4. プログラミング経験 */}
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">4. プログラミングをしたことがありますか？</label>
+                  <RadioGroup
+                    name="programmingExp"
+                    value={programmingExp}
+                    onChange={(e) => setProgrammingExp(e.target.value)}
+                    isDisabled={!loggedIn}
+                    className="flex flex-col gap-2"
+                  >
+                    <Radio value="makeSomething">何かを作ったことがある</Radio>
+                    <Radio value="little">ちょっとやったことがある</Radio>
+                    <Radio value="schoolOnly">授業などでやったことがあるが、未経験と言っても過言ではない</Radio>
+                    <Radio value="none">プログラミングに関わったことがない</Radio>
+                  </RadioGroup>
                 </div>
-              </div>
 
-              {/* ⑤ 使ったことがあるAIサービス */}
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">
-                  ⑤ 使ったことがあるAIサービスを教えてください（複数選択可）
-                </label>
-                <div className="flex flex-col gap-2">
-                  {[
-                    { label: "ChatGPT", value: "ChatGPT" },
-                    { label: "Gemini", value: "Gemini" },
-                    { label: "Claude", value: "Claude" },
-                    { label: "Copilot", value: "Copilot" },
-                    { label: "Sora", value: "Sora" },
-                    { label: "Grok", value: "Grok" },
-                  ].map((item) => (
-                    <label
-                      key={item.value}
-                      className="flex items-center gap-2"
-                    >
-                      <input
-                        type="checkbox"
+                {/* 5. 使ったことがあるAIサービス */}
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">
+                    5. 使ったことがあるAIサービスを教えてください（複数選択可）
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { label: "ChatGPT", value: "ChatGPT" },
+                      { label: "Gemini", value: "Gemini" },
+                      { label: "Claude", value: "Claude" },
+                      { label: "Copilot", value: "Copilot" },
+                      { label: "Sora", value: "Sora" },
+                      { label: "Grok", value: "Grok" },
+                    ].map((item) => (
+                      <Checkbox
+                        key={item.value}
                         name="aiServices"
                         value={item.value}
                         checked={aiServices.includes(item.value)}
@@ -416,57 +319,59 @@ export default function AuthPage() {
                           }
                         }}
                         disabled={!loggedIn}
-                      />
-                      {item.label}
-                    </label>
-                  ))}
+                      >
+                        {item.label}
+                      </Checkbox>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* ⑥ AIサービス用途 */}
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">
-                  ⑥ AIサービスを使ったことがある人は、どんな用途で利用したのか、教えてください（自由記述）
-                </label>
-                <textarea
-                  className="w-full border rounded px-3 py-2 bg-white min-h-20"
-                  value={aiUsage}
-                  onChange={(e) => setAiUsage(e.target.value)}
-                  disabled={!loggedIn}
-                />
-              </div>
+                {/* 6. AIサービス用途 */}
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">
+                    6. AIサービスを使ったことがある人は、どんな用途で利用したのか、教えてください（自由記述）
+                  </label>
+                  <Textarea
+                    className="w-full min-h-20"
+                    value={aiUsage}
+                    onChange={(e) => setAiUsage(e.target.value)}
+                    disabled={!loggedIn}
+                  />
+                </div>
 
-              {/* ⑦ 本プロジェクトでしたいこと・期待 */}
-              <div className="mt-8">
-                <label className="block text-md font-semibold mb-2">
-                  ⑦ 本プロジェクトでしたいこと、期待していることを教えてください（自由記述）
-                </label>
-                <textarea
-                  className="w-full border rounded px-3 py-2 bg-white min-h-20"
-                  value={projectExpect}
-                  onChange={(e) => setProjectExpect(e.target.value)}
+                {/* 7. 本プロジェクトでしたいこと・期待 */}
+                <div className="mt-8">
+                  <label className="block text-md font-semibold mb-2">
+                    7. 本プロジェクトでしたいこと、期待していることを教えてください（自由記述）
+                  </label>
+                  <Textarea
+                    className="w-full min-h-20"
+                    value={projectExpect}
+                    onChange={(e) => setProjectExpect(e.target.value)}
+                    disabled={!loggedIn}
+                  />
+                </div>
+                <Button
+                  color="primary"
+                  variant="solid"
+                  className="mt-8 w-full text-base font-bold"
+                  onPress={handleUpdateUserInfo}
+                  isLoading={loadingUpdate}
                   disabled={!loggedIn}
-                />
+                >
+                  決定
+                </Button>
+                <Button
+                  color="secondary"
+                  variant="solid"
+                  className="mt-6 mb-20 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
+                  onPress={handleLogout}
+                  isLoading={loadingLogout}
+                  disabled={!loggedIn}
+                >
+                  ログアウト
+                </Button>
               </div>
-              <Button
-                color="primary"
-                variant="solid"
-                className="mt-8 w-full text-base font-bold"
-                onPress={handleUpdateUserInfo}
-                isLoading={loadingUpdate}
-                disabled={!loggedIn}
-              >
-                決定
-              </Button>
-              <Button
-                color="secondary"
-                variant="solid"
-                className="mt-6 mb-20 w-full text-base font-bold bg-indigo-100 border-1 border-indigo-400 text-indigo-700"
-                onPress={handleLogout}
-                isLoading={loadingLogout}
-              >
-                ログアウト
-              </Button>
             </>
           )}
           {error && <div className="mt-4 text-red-500 text-sm text-center">{error}</div>}
