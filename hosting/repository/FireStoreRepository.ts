@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   limit,
   getDocs,
+  onSnapshot,
 } from "firebase/firestore";
 import { FirebaseConfig } from "./FirebaseConfig";
 import { NoticeEntity } from "model/NoticeEntity";
@@ -233,14 +234,29 @@ class FireStoreRepository {
     return ref.id;
   }
 
-  public static async getChatMessagesByStudentId(studentId: string): Promise<ChatMessageEntity[]> {
+  public static getChatMessagesByStudentId(
+    studentId: string,
+    onUpdate: (messages: ChatMessageEntity[]) => void,
+    onError?: (error: unknown) => void,
+  ): () => void {
     const q = query(
       collection(FirebaseConfig.db, this.ChatMessageCollectionName),
       where("studentId", "==", studentId),
       orderBy("createdAt", "asc"),
     );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((docSnap) => ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((docSnap) =>
+          ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()),
+        );
+        onUpdate(data);
+      },
+      (error) => {
+        console.error("Error getting chat messages:", error);
+        if (onError) onError(error);
+      },
+    );
   }
 
   /*

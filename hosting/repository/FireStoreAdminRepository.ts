@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
 } from "firebase/firestore";
 import type { UserInfoEntity } from "model/UserInfoEntity";
 import type { NoticeEntity } from "model/NoticeEntity";
@@ -134,14 +135,29 @@ class FireStoreAdminRepository {
   /*
    * ChatMessage
    */
-  public static async getChatMessagesByStudentId(studentId: string): Promise<ChatMessageEntity[]> {
+  public static getChatMessagesByStudentId(
+    studentId: string,
+    onUpdate: (messages: ChatMessageEntity[]) => void,
+    onError?: (error: unknown) => void,
+  ): () => void {
     const q = query(
       collection(FirebaseConfig.db, this.ChatMessageCollectionName),
       where("studentId", "==", studentId),
       orderBy("createdAt", "asc"),
     );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((docSnap) => ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((docSnap) =>
+          ChatMessageEntityConverter.fromFirestore(docSnap.id, docSnap.data()),
+        );
+        onUpdate(data);
+      },
+      (error) => {
+        console.error("Error getting chat messages:", error);
+        if (onError) onError(error);
+      },
+    );
   }
 
   public static async sendTeacherChatMessage(studentId: string, message: string): Promise<string> {

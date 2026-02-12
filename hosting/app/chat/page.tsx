@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CommonNavBar from "component/CommonNavBar";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
@@ -14,20 +14,26 @@ const Page = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const unsubscribeRef = useRef<null | (() => void)>(null);
 
   const isLoading = loading || sending;
 
-  const fetchMessages = async (targetUid: string) => {
+  const startMessagesListener = (targetUid: string) => {
     setLoading(true);
-    try {
-      const data = await FireStoreRepository.getChatMessagesByStudentId(targetUid);
-      setMessages(data);
-    } catch (e) {
-      console.error(e);
-      addToast({ title: "メッセージの取得に失敗しました。", color: "danger" });
-    } finally {
-      setLoading(false);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
     }
+    unsubscribeRef.current = FireStoreRepository.getChatMessagesByStudentId(
+      targetUid,
+      (data) => {
+        setMessages(data);
+        setLoading(false);
+      },
+      () => {
+        addToast({ title: "メッセージの取得に失敗しました。", color: "danger" });
+        setLoading(false);
+      },
+    );
   };
 
   useEffect(() => {
@@ -35,11 +41,16 @@ const Page = () => {
       await FirebaseAuthRepository.initialize();
       if (FirebaseAuthRepository.uid) {
         setUid(FirebaseAuthRepository.uid);
-        await fetchMessages(FirebaseAuthRepository.uid);
+        startMessagesListener(FirebaseAuthRepository.uid);
       } else {
         setUid(null);
       }
     })();
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, []);
 
   const handleSend = async () => {
@@ -53,7 +64,6 @@ const Page = () => {
       await FireStoreRepository.sendStudentChatMessage(uid, uid, message.trim());
       setMessage("");
       addToast({ title: "送信しました。", color: "success" });
-      await fetchMessages(uid);
     } catch (e) {
       addToast({ title: "送信に失敗しました。", color: "danger" });
     } finally {
@@ -95,7 +105,7 @@ const Page = () => {
         </div>
       )}
       <CommonNavBar title="講師に質問" />
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {!uid ? (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
             <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
@@ -112,7 +122,7 @@ const Page = () => {
                 <Button
                   variant="flat"
                   color="primary"
-                  onPress={() => fetchMessages(uid)}
+                  onPress={() => startMessagesListener(uid)}
                   className="ml-3"
                 >
                   更新

@@ -62,7 +62,7 @@ const Page = () => {
         </div>
       )}
       <CommonNavBar title={"お知らせ"} />
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {!loggedIn ? (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
             <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>

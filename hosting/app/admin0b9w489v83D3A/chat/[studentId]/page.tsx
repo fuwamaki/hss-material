@@ -1,5 +1,5 @@
 "use client";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import AdminAuth from "../../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
@@ -16,18 +16,25 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   const [student, setStudent] = useState<UserInfoEntity | null>(null);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const unsubscribeRef = useRef<null | (() => void)>(null);
   const isLoading = loading || sending;
 
-  const fetchMessages = async () => {
+  const startMessagesListener = () => {
     setLoading(true);
-    try {
-      const data = await FireStoreAdminRepository.getChatMessagesByStudentId(studentId);
-      setMessages(data);
-    } catch (e) {
-      addToast({ title: "メッセージの取得に失敗しました。", color: "danger" });
-    } finally {
-      setLoading(false);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
     }
+    unsubscribeRef.current = FireStoreAdminRepository.getChatMessagesByStudentId(
+      studentId,
+      (data) => {
+        setMessages(data);
+        setLoading(false);
+      },
+      () => {
+        addToast({ title: "メッセージの取得に失敗しました。", color: "danger" });
+        setLoading(false);
+      },
+    );
   };
 
   const fetchStudent = async () => {
@@ -42,7 +49,12 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
 
   useEffect(() => {
     fetchStudent();
-    fetchMessages();
+    startMessagesListener();
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, [studentId]);
 
   const handleSend = async () => {
@@ -55,7 +67,6 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
       await FireStoreAdminRepository.sendTeacherChatMessage(studentId, message.trim());
       setMessage("");
       addToast({ title: "送信しました。", color: "success" });
-      await fetchMessages();
     } catch (e) {
       addToast({ title: "送信に失敗しました。", color: "danger" });
     } finally {
@@ -100,7 +111,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
           </div>
         )}
         <AdminNavBar title="チャット管理" />
-        <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-neutral-800">チャット</div>
@@ -110,7 +121,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
               <Button
                 variant="flat"
                 color="primary"
-                onPress={fetchMessages}
+                onPress={startMessagesListener}
               >
                 更新
               </Button>
