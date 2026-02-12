@@ -141,3 +141,5 @@ class FireStoreAdminRepository {
     await deleteDoc(doc(FirebaseConfig.db, this.DocumentCollectionName, id));
   }
 }
+
+export { FireStoreAdminRepository };

@@ -6,10 +6,17 @@ Next.js と Tailwind CSS を使用した、「AIプログラミング体験」�
 
 日本語を使用してください。
 
+## 実装
+
+実装後にエラーが残っている場合は、原因を調査して修正してください。
+
 ## デザイン
 
 デザインは HeroUI または Tailwind CSS を使用してください。
 cssファイルを勝手に生成したり編集したりしないでください。
+
+可能な限り、UIコンポーネントはHeroUIを使用してください。
+https://www.heroui.com/
 
 ## UI Components
 

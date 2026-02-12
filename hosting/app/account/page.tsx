@@ -161,7 +161,7 @@ export default function AuthPage() {
       )}
       <CommonNavBar title="アカウント" />
       <div className="flex justify-center mt-12">
-        <div className="w-full max-w-4xl mx-2">
+        <div className="w-full max-w-6xl mx-2">
           {!loggedIn ? (
             <>
               <Button

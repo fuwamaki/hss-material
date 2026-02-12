@@ -13,7 +13,7 @@ const Page = () => {
     <div className="min-h-screen bg-neutral-100">
       <CommonNavBar title="AIプログラミング体験" />
       <div className="flex justify-center mt-8">
-        <div className="w-full max-w-4xl mx-2">
+        <div className="w-full max-w-6xl mx-2">
           <Link href="/account">
             <Button
               color="primary"
@@ -51,7 +51,7 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-400 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
                 <AccountIcon className="white" />
                 <span>アカウント</span>
@@ -64,7 +64,7 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-400 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
                 <ChatIcon className="white" />
                 <span>質問する</span>
@@ -77,7 +77,7 @@ const Page = () => {
               <Button
                 color="primary"
                 variant="solid"
-                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-300 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
+                className="w-full h-28 font-bold bg-linear-to-tr from-indigo-400 to-indigo-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
               >
                 <SubmissionIcon className="white" />
                 <span>提出する</span>
