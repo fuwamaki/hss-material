@@ -19,3 +19,17 @@ export interface UserInfoEntity {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
+
+export const isUserInfoAnswered = (userInfo: UserInfoEntity | null): boolean => {
+  if (!userInfo) return false;
+  return !!(
+    userInfo.lastName &&
+    userInfo.firstName &&
+    userInfo.lastNameKana &&
+    userInfo.firstNameKana &&
+    userInfo.typingSkillLevel !== undefined &&
+    userInfo.webSkill &&
+    userInfo.programmingExp &&
+    userInfo.projectExpect
+  );
+};

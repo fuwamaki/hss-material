@@ -2,7 +2,7 @@
 
 import CommonNavBar from "component/CommonNavBar";
 
-import { Button } from "@heroui/react";
+import { Button, Spinner } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { FireStoreRepository } from "repository/FireStoreRepository";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
@@ -11,49 +11,58 @@ import ChatIcon from "icons/chat";
 import SubmissionIcon from "icons/submission";
 import Link from "next/link";
 import { NoticeEntity } from "model/NoticeEntity";
+import { isUserInfoAnswered } from "model/UserInfoEntity";
 
 const Page = () => {
   const [latestNotice, setLatestNotice] = useState<NoticeEntity | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [answered, setAnswered] = useState(true);
+  const [answered, setAnswered] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStatus = async () => {
-      await FirebaseAuthRepository.initialize();
-      const isLoggedIn = !!FirebaseAuthRepository.uid;
-      setLoggedIn(isLoggedIn);
-      if (isLoggedIn) {
-        // 事前アンケート回答有無チェック
-        const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
-        setAnswered(
-          !!(
-            userInfo &&
-            userInfo.lastName &&
-            userInfo.firstName &&
-            userInfo.lastNameKana &&
-            userInfo.firstNameKana &&
-            userInfo.typingSkillLevel !== undefined &&
-            userInfo.webSkill &&
-            userInfo.programmingExp &&
-            userInfo.projectExpect
-          ),
-        );
-        if (userInfo?.seasonId) {
-          const notice = await FireStoreRepository.getLatestPublishedNotice(userInfo.seasonId);
-          setLatestNotice(notice);
+      setIsLoading(true);
+      try {
+        await FirebaseAuthRepository.initialize();
+        const isLoggedIn = !!FirebaseAuthRepository.uid;
+        setLoggedIn(isLoggedIn);
+        if (isLoggedIn) {
+          // 事前アンケート回答有無チェック
+          const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
+          setAnswered(isUserInfoAnswered(userInfo));
+          if (userInfo?.seasonId) {
+            const notice = await FireStoreRepository.getLatestPublishedNotice(userInfo.seasonId);
+            setLatestNotice(notice);
+          } else {
+            setLatestNotice(null);
+          }
         } else {
+          setAnswered(false);
           setLatestNotice(null);
         }
-      } else {
-        setAnswered(false);
-        setLatestNotice(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchStatus();
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-100 relative">
+        <div className="absolute inset-0 z-50 flex items-center justify-center">
+          <Spinner
+            color="primary"
+            label=""
+            size="lg"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-neutral-100 relative">
       <CommonNavBar title="AIプログラミング体験" />
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-6xl mx-2">

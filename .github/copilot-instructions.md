@@ -46,6 +46,8 @@ Admin用のデータベース操作は hosting/repository/FireStoreAdminReposito
 作成するEntityには、id, createdAt, updatedAtフィールドを必ず含めてください。
 Firestoreからの変換処理は hosting/util/ フォルダにConverterクラスを作成して実装してください。
 
+また、モデル内で完結するロジックがある場合は、モデルクラス内にメソッドとして実装してください。
+
 ## Enum
 
 列挙型は hosting/enum/ フォルダに作成してください。
