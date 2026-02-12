@@ -56,6 +56,45 @@ export default function AuthPage() {
     programmingExp.trim().length > 0 &&
     projectExpect.trim().length > 0;
 
+  // UserInfo取得後の状態セット
+  const setUserInfo = (userInfo: any) => {
+    if (userInfo) {
+      if (userInfo.seasonId) {
+        setSelectedSeasonKeys(new Set([userInfo.seasonId]));
+      }
+      setLastName(userInfo.lastName || "");
+      setFirstName(userInfo.firstName || "");
+      setLastNameKana(userInfo.lastNameKana || "");
+      setFirstNameKana(userInfo.firstNameKana || "");
+      setTypingSkillLevel(userInfo.typingSkillLevel || null);
+      setWebSkill(userInfo.webSkill || "");
+      setProgrammingExp(userInfo.programmingExp || "");
+      setAiServices(userInfo.aiServices || []);
+      setAiUsage(userInfo.aiUsage || "");
+      setProjectExpect(userInfo.projectExpect || "");
+    } else {
+      setLastName("");
+      setFirstName("");
+      setLastNameKana("");
+      setFirstNameKana("");
+      setTypingSkillLevel(null);
+      setWebSkill("");
+      setProgrammingExp("");
+      setAiServices([]);
+      setAiUsage("");
+      setProjectExpect("");
+    }
+  };
+
+  // シーズンリストとデフォルト選択セット
+  const setSeasonsAndDefaultSelection = (seasonList: LectureSeasonEntity[]) => {
+    setSeasons(seasonList);
+    if (seasonList.length > 0) {
+      const lastSeason = seasonList[seasonList.length - 1];
+      setSelectedSeasonKeys(new Set([lastSeason.id]));
+    }
+  };
+
   useEffect(() => {
     (async () => {
       await FirebaseAuthRepository.initialize();
@@ -64,42 +103,12 @@ export default function AuthPage() {
       setEmail(isLoggedIn ? FirebaseAuthRepository.email : null);
       if (isLoggedIn) {
         const seasonList = await FireStoreRepository.getActiveLectureSeasons();
-        setSeasons(seasonList);
-        // 最新のシーズン（リストのラスト）を選択状態にする
-        if (seasonList.length > 0) {
-          const lastSeason = seasonList[seasonList.length - 1];
-          setSelectedSeasonKeys(new Set([lastSeason.id]));
-        }
+        setSeasonsAndDefaultSelection(seasonList);
       }
       if (isLoggedIn && FirebaseAuthRepository.uid) {
         // Firestoreからユーザー情報取得
         const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
-        if (userInfo) {
-          if (userInfo.seasonId) {
-            setSelectedSeasonKeys(new Set([userInfo.seasonId]));
-          }
-          setLastName(userInfo.lastName || "");
-          setFirstName(userInfo.firstName || "");
-          setLastNameKana(userInfo.lastNameKana || "");
-          setFirstNameKana(userInfo.firstNameKana || "");
-          setTypingSkillLevel(userInfo.typingSkillLevel || null);
-          setWebSkill(userInfo.webSkill || "");
-          setProgrammingExp(userInfo.programmingExp || "");
-          setAiServices(userInfo.aiServices || []);
-          setAiUsage(userInfo.aiUsage || "");
-          setProjectExpect(userInfo.projectExpect || "");
-        } else {
-          setLastName("");
-          setFirstName("");
-          setLastNameKana("");
-          setFirstNameKana("");
-          setTypingSkillLevel(null);
-          setWebSkill("");
-          setProgrammingExp("");
-          setAiServices([]);
-          setAiUsage("");
-          setProjectExpect("");
-        }
+        setUserInfo(userInfo);
       }
     })();
   }, []);
@@ -131,14 +140,19 @@ export default function AuthPage() {
         setLoading(false);
         return;
       }
-      const userInfo = await FireStoreRepository.getUserInfo(uid);
+      // シーズンリスト取得・セット
+      const seasonList = await FireStoreRepository.getActiveLectureSeasons();
+      setSeasonsAndDefaultSelection(seasonList);
+      let userInfo = await FireStoreRepository.getUserInfo(uid);
       if (!userInfo) {
         // 存在しなければ新規登録（空でOK）
         await FireStoreRepository.createUserInfo(uid, email, null, null, null, null, null);
+        userInfo = await FireStoreRepository.getUserInfo(uid);
       }
       setEmail(email);
       setSuccess(true);
       setLoggedIn(true);
+      setUserInfo(userInfo);
       addToast({ title: "ログインに成功しました。", color: "success" });
     } catch (e) {
       setError("ユーザー情報の登録に失敗しました");
