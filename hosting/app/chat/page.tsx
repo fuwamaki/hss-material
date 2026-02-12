@@ -150,14 +150,14 @@ const Page = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-              <div className="text-sm text-neutral-600 mb-2">先生への質問を入力してください</div>
               <Textarea
+                className="my-2"
                 minRows={4}
-                placeholder="例：このコードの意味を教えてください"
+                placeholder="Aa"
                 value={message}
                 onValueChange={setMessage}
               />
-              <div className="mt-3 flex justify-end">
+              <div className="mt-4 flex justify-end">
                 <Button
                   color="primary"
                   onPress={handleSend}
