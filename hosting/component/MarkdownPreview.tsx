@@ -136,13 +136,13 @@ const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
         return <div {...props}>{children}</div>;
       }
 
-      const base = "my-4 rounded-xl border px-4 py-3 text-sm leading-relaxed shadow-sm bg-white/80";
+      const base = "my-4 rounded-xl border px-4 py-3 text-sm leading-relaxed shadow-sm";
       const variants: Record<string, string> = {
-        note: "border-indigo-200 bg-indigo-50/70 text-indigo-900",
-        info: "border-sky-200 bg-sky-50/70 text-sky-900",
-        tip: "border-emerald-200 bg-emerald-50/70 text-emerald-900",
+        note: "border-indigo-200 bg-indigo-100 text-indigo-900",
+        info: "border-sky-200 bg-sky-100 text-sky-900",
+        success: "border-emerald-200 bg-emerald-100 text-emerald-900",
         warning: "border-yellow-200 bg-yellow-100 text-yellow-900",
-        danger: "border-rose-200 bg-rose-50/70 text-rose-900",
+        danger: "border-rose-200 bg-rose-100 text-rose-900",
       };
       const variantClass = variants[directive] ?? "border-neutral-200 bg-neutral-50 text-neutral-800";
 
