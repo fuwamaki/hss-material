@@ -3,6 +3,9 @@ import AdminNavBar from "component/AdminNavBar";
 import AdminAuth from "./AdminAuth";
 import { Button } from "@heroui/react";
 import AccountIcon from "icons/account";
+import DocumentationIcon from "icons/documentation";
+import NotifyIcon from "icons/notify";
+import ProgressIcon from "icons/progress";
 import ChatIcon from "icons/chat";
 import SubmissionIcon from "icons/submission";
 import Link from "next/link";
@@ -37,7 +40,7 @@ const Page = () => {
                   variant="solid"
                   className="w-full h-28 font-bold bg-linear-to-tr from-teal-400 to-teal-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
                 >
-                  <ChatIcon className="white" />
+                  <ProgressIcon className="white" />
                   <span>進捗管理</span>
                 </Button>
               </Link>
@@ -50,7 +53,7 @@ const Page = () => {
                   variant="solid"
                   className="w-full h-28 font-bold bg-linear-to-tr from-teal-400 to-teal-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
                 >
-                  <SubmissionIcon className="white" />
+                  <DocumentationIcon className="white" />
                   <span>ドキュメント管理</span>
                 </Button>
               </Link>
@@ -65,7 +68,7 @@ const Page = () => {
                   variant="solid"
                   className="w-full h-28 font-bold bg-linear-to-tr from-teal-400 to-teal-500 text-white shadow-lg flex flex-col items-center justify-center gap-2"
                 >
-                  <AccountIcon className="white" />
+                  <NotifyIcon className="white" />
                   <span>お知らせ管理</span>
                 </Button>
               </Link>
