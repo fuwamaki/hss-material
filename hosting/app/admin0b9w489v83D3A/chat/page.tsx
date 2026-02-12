@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AdminAuth from "../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
@@ -14,28 +14,42 @@ const Page = () => {
   const [seasons, setSeasons] = useState<LectureSeasonEntity[]>([]);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [users, setUsers] = useState<UserInfoEntity[]>([]);
+  const unsubscribeUsersRef = useRef<null | (() => void)>(null);
 
   const fetchInitialData = async () => {
     setIsLoading(true);
     try {
-      const [seasonList, userList] = await Promise.all([
-        FireStoreAdminRepository.getAllLectureSeason(),
-        FireStoreAdminRepository.getAllUserInfo(),
-      ]);
+      const seasonList = await FireStoreAdminRepository.getAllLectureSeason();
       setSeasons(seasonList);
-      setUsers(userList);
       if (seasonList.length > 0) {
         setSelectedSeasonId(seasonList[0].id);
       }
+      if (unsubscribeUsersRef.current) {
+        unsubscribeUsersRef.current();
+      }
+      unsubscribeUsersRef.current = FireStoreAdminRepository.getAllUserInfo(
+        (data) => {
+          setUsers(data);
+          setIsLoading(false);
+        },
+        () => {
+          addToast({ title: "データの取得に失敗しました。", color: "danger" });
+          setIsLoading(false);
+        },
+      );
     } catch (e) {
       addToast({ title: "データの取得に失敗しました。", color: "danger" });
-    } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInitialData();
+    return () => {
+      if (unsubscribeUsersRef.current) {
+        unsubscribeUsersRef.current();
+      }
+    };
   }, []);
 
   const filteredUsers = useMemo(() => {

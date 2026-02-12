@@ -44,9 +44,22 @@ class FireStoreAdminRepository {
   /*
    * UserInfo
    */
-  public static async getAllUserInfo(): Promise<UserInfoEntity[]> {
-    const snapshot = await getDocs(collection(FirebaseConfig.db, this.UserInfoCollectionName));
-    return snapshot.docs.map((docSnap) => UserInfoEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+  public static getAllUserInfo(
+    onUpdate: (users: UserInfoEntity[]) => void,
+    onError?: (error: unknown) => void,
+  ): () => void {
+    const q = query(collection(FirebaseConfig.db, this.UserInfoCollectionName), orderBy("createdAt", "desc"));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((docSnap) => UserInfoEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
+        onUpdate(data);
+      },
+      (error) => {
+        console.error("Error getting user info:", error);
+        if (onError) onError(error);
+      },
+    );
   }
 
   /*

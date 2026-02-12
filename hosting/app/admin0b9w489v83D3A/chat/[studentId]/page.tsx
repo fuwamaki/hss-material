@@ -17,6 +17,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const unsubscribeRef = useRef<null | (() => void)>(null);
+  const unsubscribeUserRef = useRef<null | (() => void)>(null);
   const isLoading = loading || sending;
 
   const startMessagesListener = () => {
@@ -37,22 +38,30 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
     );
   };
 
-  const fetchStudent = async () => {
-    try {
-      const allUsers = await FireStoreAdminRepository.getAllUserInfo();
-      const target = allUsers.find((user) => user.uid === studentId) || null;
-      setStudent(target);
-    } catch (e) {
-      addToast({ title: "生徒情報の取得に失敗しました。", color: "danger" });
+  const startStudentListener = () => {
+    if (unsubscribeUserRef.current) {
+      unsubscribeUserRef.current();
     }
+    unsubscribeUserRef.current = FireStoreAdminRepository.getAllUserInfo(
+      (users) => {
+        const target = users.find((user) => user.uid === studentId) || null;
+        setStudent(target);
+      },
+      () => {
+        addToast({ title: "生徒情報の取得に失敗しました。", color: "danger" });
+      },
+    );
   };
 
   useEffect(() => {
-    fetchStudent();
+    startStudentListener();
     startMessagesListener();
     return () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
+      }
+      if (unsubscribeUserRef.current) {
+        unsubscribeUserRef.current();
       }
     };
   }, [studentId]);
