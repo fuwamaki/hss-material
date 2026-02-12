@@ -1,13 +1,26 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
-import { Button, Spinner, addToast, cn, Input, Textarea, Radio, Checkbox, RadioGroup } from "@heroui/react";
+import {
+  Button,
+  Spinner,
+  addToast,
+  cn,
+  Input,
+  Textarea,
+  Radio,
+  Checkbox,
+  RadioGroup,
+  Select,
+  SelectItem,
+  type Selection,
+} from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TypingSkillLevel } from "enum/TypingSkillLevel";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
-import { useEffect } from "react";
+import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 
 export default function AuthPage() {
   const [loading, setLoading] = useState(false); // Google認証用
@@ -17,6 +30,8 @@ export default function AuthPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [seasons, setSeasons] = useState<LectureSeasonEntity[]>([]);
+  const [selectedSeasonKeys, setSelectedSeasonKeys] = useState<Set<string>>(new Set());
   const [lastName, setLastName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastNameKana, setLastNameKana] = useState("");
@@ -29,16 +44,27 @@ export default function AuthPage() {
   const [aiUsage, setAiUsage] = useState("");
   const [projectExpect, setProjectExpect] = useState("");
   const isLoading = loading || loadingUpdate || loadingLogout;
+
   useEffect(() => {
     (async () => {
       await FirebaseAuthRepository.initialize();
       const isLoggedIn = !!FirebaseAuthRepository.uid;
       setLoggedIn(isLoggedIn);
       setEmail(isLoggedIn ? FirebaseAuthRepository.email : null);
+      if (isLoggedIn) {
+        const seasonList = await FireStoreRepository.getActiveLectureSeasons();
+        setSeasons(seasonList);
+        // 最新のシーズン（リストのラスト）を選択状態にする
+        if (seasonList.length > 0) {
+          const lastSeason = seasonList[seasonList.length - 1];
+          setSelectedSeasonKeys(new Set([lastSeason.id]));
+        }
+      }
       if (isLoggedIn && FirebaseAuthRepository.uid) {
         // Firestoreからユーザー情報取得
         const userInfo = await FireStoreRepository.getUserInfo(FirebaseAuthRepository.uid);
         if (userInfo) {
+          setSelectedSeasonKeys(new Set(userInfo.seasonId ? [userInfo.seasonId] : []));
           setLastName(userInfo.lastName || "");
           setFirstName(userInfo.firstName || "");
           setLastNameKana(userInfo.lastNameKana || "");
@@ -64,6 +90,13 @@ export default function AuthPage() {
       }
     })();
   }, []);
+
+  const handleSeasonSelectionChange = (keys: Selection) => {
+    if (keys === "all") return;
+    const nextKeys = new Set<string>();
+    keys.forEach((key) => nextKeys.add(String(key)));
+    setSelectedSeasonKeys(nextKeys);
+  };
 
   const handleGoogleAuth = async () => {
     setLoading(true);
@@ -107,7 +140,11 @@ export default function AuthPage() {
     setLoadingUpdate(true);
     setError(null);
     try {
+      const selectedSeasonId = selectedSeasonKeys.values().next().value;
+      const selectedSeason = seasons.find((s) => s.id === selectedSeasonId) || null;
       await FireStoreRepository.updateUserInfo(FirebaseAuthRepository.uid, {
+        seasonId: selectedSeason?.id,
+        seasonName: selectedSeason?.name,
         lastName,
         firstName,
         lastNameKana,
@@ -192,6 +229,19 @@ export default function AuthPage() {
               </div>
               <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mt-8 mb-4">
                 <div className="text-lg font-bold text-neutral-800 mb-4">事前アンケート</div>
+                <div className="mb-6">
+                  <Select
+                    label="受講シーズン"
+                    placeholder="選択してください"
+                    selectedKeys={selectedSeasonKeys}
+                    onSelectionChange={handleSeasonSelectionChange}
+                    disabled={!loggedIn}
+                  >
+                    {seasons.map((season) => (
+                      <SelectItem key={season.id}>{season.name}</SelectItem>
+                    ))}
+                  </Select>
+                </div>
                 <label className="block text-md font-semibold mb-2">1. お名前を教えてください</label>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

@@ -25,6 +25,8 @@ import { ChatMessageEntityConverter } from "util/ChatMessageEntityConverter";
 import { SubmissionOriginalPlayEntityConverter } from "util/SubmissionOriginalPlayEntityConverter";
 import { SubmissionOriginalSiteEntityConverter } from "util/SubmissionOriginalSiteEntityConverter";
 import { SubmissionQuizEntityConverter } from "util/SubmissionQuizEntityConverter";
+import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter";
+import { LectureSeasonEntity } from "model/LectureSeasonEntity";
 
 class FireStoreRepository {
   private static readonly UserInfoCollectionName = "user-info-collection";
@@ -62,6 +64,8 @@ class FireStoreRepository {
   public static async createUserInfo(
     uid: string,
     email: string,
+    seasonId?: string | null,
+    seasonName?: string | null,
     lastName: string | null = null,
     firstName: string | null = null,
     lastNameKana: string | null = null,
@@ -72,7 +76,7 @@ class FireStoreRepository {
     aiServices: string[] | null = null,
     aiUsage: string | null = null,
     projectExpect: string | null = null,
-  ): Promise<string | null> {
+  ): Promise<void> {
     try {
       await addDoc(collection(FirebaseConfig.db, this.UserInfoCollectionName), {
         uid,
@@ -87,6 +91,8 @@ class FireStoreRepository {
         aiServices,
         aiUsage,
         projectExpect,
+        seasonId,
+        seasonName,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -100,6 +106,8 @@ class FireStoreRepository {
   public static async updateUserInfo(
     uid: string,
     update: {
+      seasonId?: string | null;
+      seasonName?: string | null;
       lastName?: string | null;
       firstName?: string | null;
       lastNameKana?: string | null;
@@ -124,6 +132,26 @@ class FireStoreRepository {
       return await this.getUserInfo(uid);
     } catch (error) {
       console.error("Error updating userInfo:", error);
+      throw error;
+    }
+  }
+
+  /*
+   * LectureSeason
+   */
+  public static async getActiveLectureSeasons(): Promise<LectureSeasonEntity[]> {
+    try {
+      const q = query(
+        collection(FirebaseConfig.db, "lecture-season-collection"),
+        where("isActive", "==", true),
+        orderBy("createdAt", "asc"),
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((docSnap) =>
+        LectureSeasonEntityConverter.fromFirestore(docSnap.id, docSnap.data()),
+      );
+    } catch (error) {
+      console.error("Error getting active lecture seasons:", error);
       throw error;
     }
   }

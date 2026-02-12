@@ -4,6 +4,8 @@ export interface UserInfoEntity {
   id: string;
   uid: string;
   email: string;
+  seasonId?: string | null;
+  seasonName?: string | null;
   lastName?: string | null;
   firstName?: string | null;
   lastNameKana?: string | null;
