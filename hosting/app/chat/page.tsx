@@ -94,7 +94,7 @@ const Page = () => {
           />
         </div>
       )}
-      <CommonNavBar title="先生に質問する" />
+      <CommonNavBar title="講師に質問" />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {!uid ? (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
@@ -107,12 +107,13 @@ const Page = () => {
         ) : (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center mb-3">
                 <div className="text-lg font-bold text-neutral-800">チャット</div>
                 <Button
                   variant="flat"
                   color="primary"
                   onPress={() => fetchMessages(uid)}
+                  className="ml-3"
                 >
                   更新
                 </Button>
