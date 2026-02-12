@@ -7,6 +7,7 @@ import type { DocumentEntity } from "model/DocumentEntity";
 import { DocumentationType } from "enum/DocumentationType";
 import EditDocumentModal from "./EditDocumentModal";
 import ViewDocumentModal from "./ViewDocumentModal";
+import MarkdownPreview from "component/MarkdownPreview";
 import {
   Button,
   Input,
@@ -213,7 +214,7 @@ const Page = () => {
 
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
             <div className="text-lg font-bold text-neutral-800 mb-4">追加フォーム</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="タイトル"
                 placeholder="例：初日の流れ"
@@ -228,13 +229,37 @@ const Page = () => {
               />
             </div>
             <div className="mt-4">
-              <Textarea
-                label="本文"
-                placeholder="本文を入力してください"
-                minRows={6}
-                value={body}
-                onValueChange={setBody}
-              />
+              <Tabs
+                aria-label="本文入力とプレビュー"
+                color="primary"
+                variant="underlined"
+              >
+                <Tab
+                  key="edit"
+                  title="編集"
+                >
+                  <Textarea
+                    label="本文"
+                    placeholder="本文を入力してください"
+                    minRows={6}
+                    maxRows={30}
+                    value={body}
+                    onValueChange={setBody}
+                  />
+                </Tab>
+                <Tab
+                  key="preview"
+                  title="プレビュー"
+                >
+                  <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 max-h-[60vh] overflow-y-auto">
+                    {body.trim() ? (
+                      <MarkdownPreview content={body} />
+                    ) : (
+                      <div className="text-sm text-neutral-500">プレビューする本文がありません。</div>
+                    )}
+                  </div>
+                </Tab>
+              </Tabs>
             </div>
             <div className="mt-4 flex items-center justify-end gap-2">
               <Button

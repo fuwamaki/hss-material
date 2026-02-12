@@ -3,10 +3,12 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import remarkDirective from "remark-directive";
 import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import type { ReactNode } from "react";
 import { Divider } from "@heroui/react";
+import { visit } from "unist-util-visit";
 
 interface MarkdownPreviewProps {
   content: string;
@@ -14,6 +16,21 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
+  const remarkCustomContainer = () => (tree: any) => {
+    visit(tree, (node: any) => {
+      if (node.type !== "containerDirective") return;
+      const name = String(node.name || "").toLowerCase();
+      if (!name) return;
+
+      node.data = node.data || {};
+      node.data.hName = "div";
+      node.data.hProperties = {
+        ...(node.data.hProperties || {}),
+        "data-directive": name,
+      };
+    });
+  };
+
   const urlTransform = (url: string) => {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
@@ -100,11 +117,11 @@ const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
       const isInline = inline === true || hasPosition;
 
       if (isInline) {
-        return <code className="rounded bg-indigo-800 px-2 py-1 text-white text-sm">{children}</code>;
+        return <code className="rounded bg-indigo-900 px-2 py-1 text-white text-sm">{children}</code>;
       }
       return (
         <code
-          className={`block rounded-xl bg-indigo-800 my-2 p-4 text-sm text-white whitespace-pre overflow-x-auto ${
+          className={`block rounded-xl bg-indigo-900 my-2 p-4 text-sm text-white whitespace-pre overflow-x-auto ${
             hasLangClass ? codeClassName : ""
           }`}
         >
@@ -113,12 +130,37 @@ const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
       );
     },
     hr: () => <Divider className="my-6" />,
+    div: ({ children, ...props }: any) => {
+      const directive = props["data-directive"] as string | undefined;
+      if (!directive) {
+        return <div {...props}>{children}</div>;
+      }
+
+      const base = "my-4 rounded-xl border px-4 py-3 text-sm leading-relaxed shadow-sm bg-white/80";
+      const variants: Record<string, string> = {
+        note: "border-indigo-200 bg-indigo-50/70 text-indigo-900",
+        info: "border-sky-200 bg-sky-50/70 text-sky-900",
+        tip: "border-emerald-200 bg-emerald-50/70 text-emerald-900",
+        warning: "border-yellow-200 bg-yellow-100 text-yellow-900",
+        danger: "border-rose-200 bg-rose-50/70 text-rose-900",
+      };
+      const variantClass = variants[directive] ?? "border-neutral-200 bg-neutral-50 text-neutral-800";
+
+      return (
+        <div
+          {...props}
+          className={`${base} ${variantClass}`}
+        >
+          {children}
+        </div>
+      );
+    },
   };
 
   return (
     <div className={className}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkBreaks] as any[]}
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkDirective, remarkCustomContainer] as any[]}
         rehypePlugins={[rehypeRaw, rehypeHighlight] as any[]}
         components={components}
         urlTransform={urlTransform}
