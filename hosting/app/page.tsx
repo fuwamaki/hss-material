@@ -20,6 +20,7 @@ const Page = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [answered, setAnswered] = useState(false);
   const [showLastQuestionnaire, setShowLastQuestionnaire] = useState(false);
+  const [showLastDocs, setShowLastDocs] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +29,8 @@ const Page = () => {
       try {
         const remoteConfigValue = await RemoteConfigRepository.getBooleanValue("is_show_last_questionnaire", false);
         setShowLastQuestionnaire(remoteConfigValue);
+        const showLastDocsValue = await RemoteConfigRepository.getBooleanValue("is_show_last_docs", false);
+        setShowLastDocs(showLastDocsValue);
         await FirebaseAuthRepository.initialize();
         const isLoggedIn = !!FirebaseAuthRepository.uid;
         setLoggedIn(isLoggedIn);
@@ -153,13 +156,19 @@ const Page = () => {
                   </Button>
                 </Link>
                 <Link
-                  href="/documentation/original-plan"
+                  href="/documentation/last"
                   className="w-full"
+                  tabIndex={showLastDocs ? 0 : -1}
+                  aria-disabled={!showLastDocs}
+                  onClick={(e) => {
+                    if (!showLastDocs) e.preventDefault();
+                  }}
                 >
                   <Button
                     color="primary"
                     variant="solid"
-                    className="w-full h-20 font-bold text-md bg-indigo-100 text-indigo-700 shadow-lg flex flex-col items-center justify-center gap-2"
+                    className={`w-full h-20 font-bold text-md shadow-lg flex flex-col items-center justify-center gap-2 ${showLastDocs ? "bg-indigo-100 text-indigo-700" : "bg-gray-300 text-gray-400"}`}
+                    disabled={!showLastDocs}
                   >
                     <span>最終日資料</span>
                   </Button>
