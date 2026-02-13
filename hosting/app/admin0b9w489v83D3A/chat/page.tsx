@@ -102,7 +102,7 @@ const Page = () => {
                 {filteredUsers.map((user) => (
                   <Link
                     key={user.uid}
-                    href={`/admin0b9w489v83D3A/chat/${user.uid}`}
+                    href={`/admin0b9w489v83D3A/chat/detail?studentId=${user.uid}`}
                   >
                     <Button
                       className="w-full justify-between"

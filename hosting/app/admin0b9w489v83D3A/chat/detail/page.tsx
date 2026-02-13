@@ -1,5 +1,6 @@
 "use client";
-import { use, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminAuth from "../../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
 import CommonFooter from "component/CommonFooter";
@@ -10,8 +11,9 @@ import { Button, Spinner, Textarea } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 import Link from "next/link";
 
-const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
-  const { studentId } = use(params);
+const Page = () => {
+  const searchParams = useSearchParams();
+  const studentId = searchParams.get("studentId") || "";
   const [messages, setMessages] = useState<ChatMessageEntity[]>([]);
   const [message, setMessage] = useState("");
   const [student, setStudent] = useState<UserInfoEntity | null>(null);
@@ -22,6 +24,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   const isLoading = loading || sending;
 
   const startMessagesListener = () => {
+    if (!studentId) return;
     setLoading(true);
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
@@ -40,6 +43,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   };
 
   const startStudentListener = () => {
+    if (!studentId) return;
     if (unsubscribeUserRef.current) {
       unsubscribeUserRef.current();
     }
@@ -55,6 +59,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   };
 
   useEffect(() => {
+    if (!studentId) return;
     startStudentListener();
     startMessagesListener();
     return () => {
@@ -68,6 +73,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
   }, [studentId]);
 
   const handleSend = async () => {
+    if (!studentId) return;
     if (!message.trim()) {
       addToast({ title: "メッセージを入力してください。", color: "warning" });
       return;
@@ -112,7 +118,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
     <AdminAuth>
       <div className="min-h-screen bg-neutral-100 relative">
         {isLoading && (
-          <div className="absolute inset-0 z-50 flex items-center justify-cente">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
             <Spinner
               color="primary"
               label=""
@@ -122,74 +128,82 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
         )}
         <AdminNavBar title="チャット管理" />
         <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-lg font-bold text-neutral-800">チャット</div>
-              <div className="text-sm text-neutral-500">{displayName || student?.email || "生徒情報"}</div>
+          {!studentId ? (
+            <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-sm text-neutral-600">
+              生徒が選択されていません。
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="flat"
-                color="primary"
-                onPress={startMessagesListener}
-              >
-                更新
-              </Button>
-              <Link href="/admin0b9w489v83D3A/chat">
-                <Button variant="flat">一覧へ戻る</Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              {sortedMessages.length === 0 ? (
-                <div className="text-sm text-neutral-500">まだメッセージはありません。</div>
-              ) : (
-                sortedMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.senderRole === "admin" ? "justify-end" : "justify-start"}`}
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-neutral-800">チャット</div>
+                  <div className="text-sm text-neutral-500">{displayName || student?.email || "生徒情報"}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="flat"
+                    color="primary"
+                    onPress={startMessagesListener}
                   >
-                    <div
-                      className={`max-w-[80%] rounded-lg px-3 py-2 text-sm whitespace-pre-line ${
-                        msg.senderRole === "admin"
-                          ? "bg-indigo-500 text-white"
-                          : "bg-neutral-100 text-neutral-800 border border-neutral-200"
-                      }`}
-                    >
-                      <div>{msg.message}</div>
-                      <div
-                        className={`mt-1 text-[10px] ${
-                          msg.senderRole === "admin" ? "text-indigo-100" : "text-neutral-500"
-                        }`}
-                      >
-                        {formatDate(msg.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+                    更新
+                  </Button>
+                  <Link href="/admin0b9w489v83D3A/chat">
+                    <Button variant="flat">一覧へ戻る</Button>
+                  </Link>
+                </div>
+              </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
-            <Textarea
-              className="my-2"
-              minRows={4}
-              placeholder="Aa"
-              value={message}
-              onValueChange={setMessage}
-            />
-            <div className="mt-4 flex justify-end">
-              <Button
-                color="primary"
-                onPress={handleSend}
-              >
-                送信
-              </Button>
-            </div>
-          </div>
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                  {sortedMessages.length === 0 ? (
+                    <div className="text-sm text-neutral-500">まだメッセージはありません。</div>
+                  ) : (
+                    sortedMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`flex ${msg.senderRole === "admin" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg px-3 py-2 text-sm whitespace-pre-line ${
+                            msg.senderRole === "admin"
+                              ? "bg-indigo-500 text-white"
+                              : "bg-neutral-100 text-neutral-800 border border-neutral-200"
+                          }`}
+                        >
+                          <div>{msg.message}</div>
+                          <div
+                            className={`mt-1 text-[10px] ${
+                              msg.senderRole === "admin" ? "text-indigo-100" : "text-neutral-500"
+                            }`}
+                          >
+                            {formatDate(msg.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+                <Textarea
+                  className="my-2"
+                  minRows={4}
+                  placeholder="Aa"
+                  value={message}
+                  onValueChange={setMessage}
+                />
+                <div className="mt-4 flex justify-end">
+                  <Button
+                    color="primary"
+                    onPress={handleSend}
+                  >
+                    送信
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <CommonFooter />
       </div>
