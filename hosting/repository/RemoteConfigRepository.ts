@@ -1,5 +1,12 @@
 import { getApps, getApp } from "firebase/app";
-import { fetchAndActivate, getBoolean, getRemoteConfig, type RemoteConfig } from "firebase/remote-config";
+import {
+  activate,
+  fetchAndActivate,
+  getBoolean,
+  getRemoteConfig,
+  onConfigUpdate,
+  type RemoteConfig,
+} from "firebase/remote-config";
 import { FirebaseConfig } from "./FirebaseConfig";
 
 class RemoteConfigRepository {
@@ -19,14 +26,41 @@ class RemoteConfigRepository {
     this.remoteConfig = remoteConfig;
   }
 
-  public static async getBooleanValue(key: string, defaultValue = false): Promise<boolean> {
+  public static async getBooleanValue(
+    key: string,
+    defaultValue = false,
+    onChange?: (value: boolean) => void,
+  ): Promise<{ value: boolean; unsubscribe?: () => void }> {
     await this.initialize();
-    if (!this.remoteConfig) return defaultValue;
+    if (!this.remoteConfig) return { value: defaultValue };
     this.remoteConfig.defaultConfig = {
       [key]: defaultValue,
     };
     await fetchAndActivate(this.remoteConfig);
-    return getBoolean(this.remoteConfig, key);
+    const value = getBoolean(this.remoteConfig, key);
+
+    let unsubscribe: (() => void) | undefined;
+    if (onChange) {
+      unsubscribe = onConfigUpdate(this.remoteConfig, {
+        next: async (configUpdate) => {
+          try {
+            if (!configUpdate.getUpdatedKeys().has(key)) return;
+            await activate(this.remoteConfig!);
+            onChange(getBoolean(this.remoteConfig!, key));
+          } catch (error) {
+            console.error("Remote Config update error:", error);
+          }
+        },
+        error: (error) => {
+          console.error("Remote Config update error:", error);
+        },
+        complete: function (): void {
+          throw new Error("Function not implemented.");
+        },
+      });
+    }
+
+    return { value, unsubscribe };
   }
 }
 
