@@ -17,7 +17,7 @@ import {
 } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { TypingSkillLevel } from "enum/TypingSkillLevel";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
@@ -49,7 +49,6 @@ export default function AuthPage() {
   const [reflectionGood, setReflectionGood] = useState("");
   const [reflectionImprove, setReflectionImprove] = useState("");
   const [showLastQuestionnaire, setShowLastQuestionnaire] = useState(false);
-  const remoteConfigUnsubscribeRef = useRef<null | (() => void)>(null);
   const isLoading = loading || loadingUpdate || loadingLogout;
   const selectedSeasonId = selectedSeasonKeys.values().next().value;
   const isFormValid =
@@ -111,15 +110,8 @@ export default function AuthPage() {
 
   useEffect(() => {
     (async () => {
-      const { value, unsubscribe } = await RemoteConfigRepository.getBooleanValue(
-        "is_show_last_questionnaire",
-        false,
-        (updatedValue) => {
-          setShowLastQuestionnaire(updatedValue);
-        },
-      );
-      setShowLastQuestionnaire(value);
-      remoteConfigUnsubscribeRef.current = unsubscribe ?? null;
+      const remoteConfigValue = await RemoteConfigRepository.getBooleanValue("is_show_last_questionnaire", false);
+      setShowLastQuestionnaire(remoteConfigValue);
       await FirebaseAuthRepository.initialize();
       const isLoggedIn = !!FirebaseAuthRepository.uid;
       setLoggedIn(isLoggedIn);
@@ -134,12 +126,6 @@ export default function AuthPage() {
         setUserInfo(userInfo);
       }
     })();
-    return () => {
-      if (remoteConfigUnsubscribeRef.current) {
-        remoteConfigUnsubscribeRef.current();
-        remoteConfigUnsubscribeRef.current = null;
-      }
-    };
   }, []);
 
   const handleSeasonSelectionChange = (keys: Selection) => {

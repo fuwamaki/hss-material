@@ -3,7 +3,7 @@
 import CommonNavBar from "component/CommonNavBar";
 
 import { Button, Spinner } from "@heroui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FireStoreRepository } from "repository/FireStoreRepository";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { RemoteConfigRepository } from "repository/RemoteConfigRepository";
@@ -21,21 +21,13 @@ const Page = () => {
   const [answered, setAnswered] = useState(false);
   const [showLastQuestionnaire, setShowLastQuestionnaire] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const remoteConfigUnsubscribeRef = useRef<null | (() => void)>(null);
 
   useEffect(() => {
     const fetchStatus = async () => {
       setIsLoading(true);
       try {
-        const { value, unsubscribe } = await RemoteConfigRepository.getBooleanValue(
-          "is_show_last_questionnaire",
-          false,
-          (updatedValue) => {
-            setShowLastQuestionnaire(updatedValue);
-          },
-        );
-        setShowLastQuestionnaire(value);
-        remoteConfigUnsubscribeRef.current = unsubscribe ?? null;
+        const remoteConfigValue = await RemoteConfigRepository.getBooleanValue("is_show_last_questionnaire", false);
+        setShowLastQuestionnaire(remoteConfigValue);
         await FirebaseAuthRepository.initialize();
         const isLoggedIn = !!FirebaseAuthRepository.uid;
         setLoggedIn(isLoggedIn);
@@ -58,12 +50,6 @@ const Page = () => {
       }
     };
     fetchStatus();
-    return () => {
-      if (remoteConfigUnsubscribeRef.current) {
-        remoteConfigUnsubscribeRef.current();
-        remoteConfigUnsubscribeRef.current = null;
-      }
-    };
   }, []);
 
   if (isLoading) {
