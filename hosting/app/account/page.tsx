@@ -17,10 +17,11 @@ import {
 } from "@heroui/react";
 import GoogleIcon from "icons/google.jsx";
 import CheckIcon from "icons/check.jsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TypingSkillLevel } from "enum/TypingSkillLevel";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
+import { RemoteConfigRepository } from "repository/RemoteConfigRepository";
 import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 
 export default function AuthPage() {
@@ -44,6 +45,11 @@ export default function AuthPage() {
   const [aiServices, setAiServices] = useState<string[]>([]);
   const [aiUsage, setAiUsage] = useState("");
   const [projectExpect, setProjectExpect] = useState("");
+  const [reflectionImpression, setReflectionImpression] = useState("");
+  const [reflectionGood, setReflectionGood] = useState("");
+  const [reflectionImprove, setReflectionImprove] = useState("");
+  const [showLastQuestionnaire, setShowLastQuestionnaire] = useState(false);
+  const remoteConfigUnsubscribeRef = useRef<null | (() => void)>(null);
   const isLoading = loading || loadingUpdate || loadingLogout;
   const selectedSeasonId = selectedSeasonKeys.values().next().value;
   const isFormValid =
@@ -55,7 +61,8 @@ export default function AuthPage() {
     typingSkillLevel !== null &&
     webSkill.trim().length > 0 &&
     programmingExp.trim().length > 0 &&
-    projectExpect.trim().length > 0;
+    projectExpect.trim().length > 0 &&
+    (!showLastQuestionnaire || reflectionImpression.trim().length > 0);
 
   // UserInfo取得後の状態セット
   const setUserInfo = (userInfo: any) => {
@@ -73,6 +80,9 @@ export default function AuthPage() {
       setAiServices(userInfo.aiServices || []);
       setAiUsage(userInfo.aiUsage || "");
       setProjectExpect(userInfo.projectExpect || "");
+      setReflectionImpression(userInfo.reflectionImpression || "");
+      setReflectionGood(userInfo.reflectionGood || "");
+      setReflectionImprove(userInfo.reflectionImprove || "");
     } else {
       setLastName("");
       setFirstName("");
@@ -84,6 +94,9 @@ export default function AuthPage() {
       setAiServices([]);
       setAiUsage("");
       setProjectExpect("");
+      setReflectionImpression("");
+      setReflectionGood("");
+      setReflectionImprove("");
     }
   };
 
@@ -98,6 +111,15 @@ export default function AuthPage() {
 
   useEffect(() => {
     (async () => {
+      const { value, unsubscribe } = await RemoteConfigRepository.getBooleanValue(
+        "is_show_last_questionnaire",
+        false,
+        (updatedValue) => {
+          setShowLastQuestionnaire(updatedValue);
+        },
+      );
+      setShowLastQuestionnaire(value);
+      remoteConfigUnsubscribeRef.current = unsubscribe ?? null;
       await FirebaseAuthRepository.initialize();
       const isLoggedIn = !!FirebaseAuthRepository.uid;
       setLoggedIn(isLoggedIn);
@@ -112,6 +134,12 @@ export default function AuthPage() {
         setUserInfo(userInfo);
       }
     })();
+    return () => {
+      if (remoteConfigUnsubscribeRef.current) {
+        remoteConfigUnsubscribeRef.current();
+        remoteConfigUnsubscribeRef.current = null;
+      }
+    };
   }, []);
 
   const handleSeasonSelectionChange = (keys: Selection) => {
@@ -186,6 +214,14 @@ export default function AuthPage() {
         aiServices,
         aiUsage,
         projectExpect,
+        ...(showLastQuestionnaire
+          ? {
+              reflectionImpression,
+              reflectionGood,
+              reflectionImprove,
+              isReflectionAnswered: reflectionImpression.trim().length > 0,
+            }
+          : {}),
       });
       setSuccess(true);
       addToast({
@@ -198,6 +234,28 @@ export default function AuthPage() {
       });
     } catch (e) {
       setError("ユーザー情報の更新に失敗しました");
+    }
+    setLoadingUpdate(false);
+  };
+
+  const handleSubmitReflection = async () => {
+    if (!FirebaseAuthRepository.uid) return;
+    if (!reflectionImpression.trim()) {
+      addToast({ title: "感想を入力してください。", color: "warning" });
+      return;
+    }
+    setLoadingUpdate(true);
+    setError(null);
+    try {
+      await FireStoreRepository.updateUserInfo(FirebaseAuthRepository.uid, {
+        reflectionImpression,
+        reflectionGood,
+        reflectionImprove,
+        isReflectionAnswered: true,
+      });
+      addToast({ title: "振り返りアンケートを送信しました。", color: "success" });
+    } catch (e) {
+      setError("振り返りアンケートの送信に失敗しました");
     }
     setLoadingUpdate(false);
   };
@@ -258,6 +316,60 @@ export default function AuthPage() {
               <div className="mt-4 text-center text-base font-semibold">
                 {email && <span>メールアドレス: {email}</span>}
               </div>
+              {showLastQuestionnaire && (
+                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mt-6 mb-4">
+                  <div className="text-lg font-bold text-neutral-800 mb-4">振り返りアンケート</div>
+                  <div className="mt-4">
+                    <label className="block text-md font-semibold mb-2">
+                      1. 本プロジェクトに参加してみて、AIプログラミングを体験してみて、感想を教えてください。
+                      <span className="ml-2 text-xs text-rose-600">*</span>
+                    </label>
+                    <Textarea
+                      className="w-full min-h-24"
+                      value={reflectionImpression}
+                      onChange={(e) => setReflectionImpression(e.target.value)}
+                      disabled={!loggedIn}
+                      isRequired
+                    />
+                  </div>
+                  <div className="mt-6">
+                    <label className="block text-md font-semibold mb-2">
+                      2. 本プロジェクトの良かった点を教えてください。
+                    </label>
+                    <Textarea
+                      className="w-full min-h-20"
+                      value={reflectionGood}
+                      onChange={(e) => setReflectionGood(e.target.value)}
+                      disabled={!loggedIn}
+                    />
+                  </div>
+                  <div className="mt-6">
+                    <label className="block text-md font-semibold mb-2">
+                      3. 本プロジェクトで改善してほしいと思った点を教えてください。今後の参考にさせて頂きます。
+                    </label>
+                    <Textarea
+                      className="w-full min-h-20"
+                      value={reflectionImprove}
+                      onChange={(e) => setReflectionImprove(e.target.value)}
+                      disabled={!loggedIn}
+                    />
+                  </div>
+                  <Button
+                    color="primary"
+                    variant="solid"
+                    className={cn(
+                      "mt-6 w-full text-base font-bold",
+                      (!loggedIn || !reflectionImpression.trim()) &&
+                        "bg-neutral-200 border-neutral-300 text-neutral-400",
+                    )}
+                    onPress={handleSubmitReflection}
+                    isLoading={loadingUpdate}
+                    disabled={!loggedIn || !reflectionImpression.trim()}
+                  >
+                    送信
+                  </Button>
+                </div>
+              )}
               <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mt-8 mb-4">
                 <div className="text-lg font-bold text-neutral-800 mb-4">事前アンケート</div>
                 <div className="mb-6">

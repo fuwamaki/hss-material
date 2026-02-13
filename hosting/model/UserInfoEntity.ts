@@ -16,6 +16,10 @@ export interface UserInfoEntity {
   aiServices?: string[] | null;
   aiUsage?: string | null;
   projectExpect: string;
+  reflectionImpression?: string | null;
+  reflectionGood?: string | null;
+  reflectionImprove?: string | null;
+  isReflectionAnswered?: boolean | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

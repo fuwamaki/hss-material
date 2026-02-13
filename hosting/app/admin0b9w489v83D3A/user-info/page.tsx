@@ -7,7 +7,9 @@ import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 import type { UserInfoEntity } from "model/UserInfoEntity";
 import UserInfoDetailModal from "./UserInfoDetailModal";
+import UserReflectionModal from "./UserReflectionModal";
 import {
+  Button,
   Select,
   SelectItem,
   Spinner,
@@ -27,6 +29,8 @@ const Page = () => {
   const [users, setUsers] = useState<UserInfoEntity[]>([]);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailTarget, setDetailTarget] = useState<UserInfoEntity | null>(null);
+  const [isReflectionOpen, setIsReflectionOpen] = useState(false);
+  const [reflectionTarget, setReflectionTarget] = useState<UserInfoEntity | null>(null);
   const unsubscribeUsersRef = useRef<null | (() => void)>(null);
 
   const fetchSeasons = async () => {
@@ -78,6 +82,11 @@ const Page = () => {
     setIsDetailOpen(true);
   };
 
+  const openReflection = (user: UserInfoEntity) => {
+    setReflectionTarget(user);
+    setIsReflectionOpen(true);
+  };
+
   return (
     <AdminAuth>
       <div className="min-h-screen bg-neutral-100 relative">
@@ -120,6 +129,7 @@ const Page = () => {
                 <TableColumn>Webスキル</TableColumn>
                 <TableColumn>プログラミング経験</TableColumn>
                 <TableColumn>利用AI</TableColumn>
+                <TableColumn>振り返り</TableColumn>
               </TableHeader>
               <TableBody
                 items={filteredUsers}
@@ -137,6 +147,23 @@ const Page = () => {
                     <TableCell>{item.webSkill || "-"}</TableCell>
                     <TableCell>{item.programmingExp || "-"}</TableCell>
                     <TableCell>{item.aiServices?.join(", ") || "-"}</TableCell>
+                    <TableCell>
+                      {item.isReflectionAnswered ? (
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          color="primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openReflection(item);
+                          }}
+                        >
+                          振り返り
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-neutral-400">-</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -150,6 +177,14 @@ const Page = () => {
             if (!open) setDetailTarget(null);
           }}
           user={detailTarget}
+        />
+        <UserReflectionModal
+          isOpen={isReflectionOpen}
+          onOpenChange={(open) => {
+            setIsReflectionOpen(open);
+            if (!open) setReflectionTarget(null);
+          }}
+          user={reflectionTarget}
         />
         <CommonFooter />
       </div>

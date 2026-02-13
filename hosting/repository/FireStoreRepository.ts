@@ -87,6 +87,10 @@ class FireStoreRepository {
     aiServices: string[] | null = null,
     aiUsage: string | null = null,
     projectExpect: string | null = null,
+    reflectionImpression: string | null = null,
+    reflectionGood: string | null = null,
+    reflectionImprove: string | null = null,
+    isReflectionAnswered: boolean | null = null,
   ): Promise<void> {
     try {
       await addDoc(collection(FirebaseConfig.db, this.UserInfoCollectionName), {
@@ -102,6 +106,10 @@ class FireStoreRepository {
         aiServices,
         aiUsage,
         projectExpect,
+        reflectionImpression,
+        reflectionGood,
+        reflectionImprove,
+        isReflectionAnswered,
         seasonId,
         seasonName,
         createdAt: serverTimestamp(),
@@ -129,6 +137,10 @@ class FireStoreRepository {
       aiServices?: string[] | null;
       aiUsage?: string | null;
       projectExpect?: string | null;
+      reflectionImpression?: string | null;
+      reflectionGood?: string | null;
+      reflectionImprove?: string | null;
+      isReflectionAnswered?: boolean | null;
     },
   ): Promise<UserInfoEntity | null> {
     try {
