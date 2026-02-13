@@ -1,5 +1,6 @@
 "use client";
 import AdminNavBar from "component/AdminNavBar";
+import CommonFooter from "component/CommonFooter";
 import AdminAuth from "./AdminAuth";
 import { Button } from "@heroui/react";
 import AccountIcon from "icons/account";
@@ -16,7 +17,7 @@ const Page = () => {
     <AdminAuth>
       <div className="min-h-screen bg-neutral-100">
         <AdminNavBar title="TOP" />
-        <div className="flex justify-center mt-8">
+        <div className="min-h-screen flex justify-center mt-8">
           <div className="w-full max-w-6xl mx-2">
             <div className="mt-6 grid grid-cols-3 gap-3">
               <Link
@@ -117,6 +118,7 @@ const Page = () => {
             </div>
           </div>
         </div>
+        <CommonFooter />
       </div>
     </AdminAuth>
   );

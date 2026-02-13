@@ -2,6 +2,7 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import AdminAuth from "../../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
+import CommonFooter from "component/CommonFooter";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { ChatMessageEntity } from "model/ChatMessageEntity";
 import type { UserInfoEntity } from "model/UserInfoEntity";
@@ -120,7 +121,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
           </div>
         )}
         <AdminNavBar title="チャット管理" />
-        <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-neutral-800">チャット</div>
@@ -190,6 +191,7 @@ const Page = ({ params }: { params: Promise<{ studentId: string }> }) => {
             </div>
           </div>
         </div>
+        <CommonFooter />
       </div>
     </AdminAuth>
   );

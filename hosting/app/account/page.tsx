@@ -1,5 +1,6 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
+import CommonFooter from "component/CommonFooter";
 import {
   Button,
   Spinner,
@@ -482,6 +483,7 @@ export default function AuthPage() {
           {error && <div className="mt-4 text-red-500 text-sm text-center">{error}</div>}
         </div>
       </div>
+      <CommonFooter />
     </div>
   );
 }

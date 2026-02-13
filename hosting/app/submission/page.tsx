@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import CommonNavBar from "component/CommonNavBar";
+import CommonFooter from "component/CommonFooter";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
 import type { SubmissionOriginalPlayEntity } from "model/SubmissionOriginalPlayEntity";
@@ -152,7 +153,7 @@ const Page = () => {
       {isReady && (
         <>
           <CommonNavBar title="提出" />
-          <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="min-h-screen max-w-6xl mx-auto px-4 py-8">
             {!uid ? (
               <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
                 <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
@@ -204,6 +205,7 @@ const Page = () => {
           </div>
         </>
       )}
+      {isReady && <CommonFooter />}
     </div>
   );
 };

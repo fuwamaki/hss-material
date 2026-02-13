@@ -6,6 +6,7 @@ import { FireStoreRepository } from "repository/FireStoreRepository";
 import type { DocumentEntity } from "model/DocumentEntity";
 import { DocumentationType } from "enum/DocumentationType";
 import MarkdownPreview from "component/MarkdownPreview";
+import CommonFooter from "component/CommonFooter";
 import { Spinner } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 
@@ -58,7 +59,7 @@ const Page = () => {
         </div>
       )}
       <CommonNavBar title="Step1: セットアップ" />
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-6">
         {sortedDocuments.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center text-sm text-neutral-500">
             ドキュメントがありません。
@@ -82,6 +83,7 @@ const Page = () => {
           </div>
         )}
       </div>
+      <CommonFooter />
     </div>
   );
 };

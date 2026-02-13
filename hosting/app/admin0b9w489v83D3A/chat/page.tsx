@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminAuth from "../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
+import CommonFooter from "component/CommonFooter";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
 import type { UserInfoEntity } from "model/UserInfoEntity";
@@ -70,7 +71,7 @@ const Page = () => {
           </div>
         )}
         <AdminNavBar title="チャット管理" />
-        <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
             <div className="text-sm text-neutral-600 mb-2">シーズン選択</div>
             <Select
@@ -117,6 +118,7 @@ const Page = () => {
             )}
           </div>
         </div>
+        <CommonFooter />
       </div>
     </AdminAuth>
   );

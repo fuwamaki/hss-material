@@ -12,6 +12,7 @@ import SubmissionIcon from "icons/submission";
 import Link from "next/link";
 import { NoticeEntity } from "model/NoticeEntity";
 import { isUserInfoAnswered } from "model/UserInfoEntity";
+import CommonFooter from "component/CommonFooter";
 
 const Page = () => {
   const [latestNotice, setLatestNotice] = useState<NoticeEntity | null>(null);
@@ -217,6 +218,7 @@ const Page = () => {
           </Link>
         </div>
       </div>
+      <CommonFooter />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import AdminNavBar from "component/AdminNavBar";
+import CommonFooter from "component/CommonFooter";
 import AdminAuth from "../AdminAuth";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { NoticeEntity } from "model/NoticeEntity";
@@ -189,7 +190,7 @@ const Page = () => {
           </div>
         )}
         <AdminNavBar title={"お知らせ管理"} />
-        <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-8">
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
             <div className="text-lg font-bold text-neutral-800 mb-4">追加フォーム</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -318,6 +319,7 @@ const Page = () => {
           isSubmitting={isLoading}
           seasons={seasons}
         />
+        <CommonFooter />
       </div>
     </AdminAuth>
   );

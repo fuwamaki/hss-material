@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminAuth from "../AdminAuth";
 import AdminNavBar from "component/AdminNavBar";
+import CommonFooter from "component/CommonFooter";
 import { FireStoreAdminRepository } from "repository/FireStoreAdminRepository";
 import type { DocumentEntity } from "model/DocumentEntity";
 import { DocumentationType } from "enum/DocumentationType";
@@ -194,7 +195,7 @@ const Page = () => {
           </div>
         )}
         <AdminNavBar title="ドキュメント管理" />
-        <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-8">
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
             <Tabs
               aria-label="ドキュメント種別"
@@ -351,6 +352,7 @@ const Page = () => {
           }}
           document={viewTarget}
         />
+        <CommonFooter />
       </div>
     </AdminAuth>
   );

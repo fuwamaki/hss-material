@@ -1,5 +1,6 @@
 "use client";
 import CommonNavBar from "component/CommonNavBar";
+import CommonFooter from "component/CommonFooter";
 import { useEffect, useMemo, useState } from "react";
 import { FirebaseAuthRepository } from "repository/FirebaseAuthRepository";
 import { FireStoreRepository } from "repository/FireStoreRepository";
@@ -62,7 +63,7 @@ const Page = () => {
         </div>
       )}
       <CommonNavBar title={"お知らせ"} />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="min-h-screen max-w-6xl mx-auto px-4 py-8">
         {!loggedIn ? (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
             <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
@@ -97,6 +98,7 @@ const Page = () => {
           </div>
         )}
       </div>
+      <CommonFooter />
     </div>
   );
 };
