@@ -20,6 +20,7 @@ import type { SubmissionOriginalSiteEntity } from "model/SubmissionOriginalSiteE
 import type { SubmissionQuizEntity } from "model/SubmissionQuizEntity";
 import type { DocumentEntity } from "model/DocumentEntity";
 import type { LectureSeasonEntity } from "model/LectureSeasonEntity";
+import type { UserProgressEntity } from "model/UserProgressEntity";
 import { UserInfoEntityConverter } from "util/UserInfoEntityConverter";
 import { NoticeEntityConverter } from "util/NoticeEntityConverter";
 import { ChatMessageEntityConverter } from "util/ChatMessageEntityConverter";
@@ -28,6 +29,7 @@ import { SubmissionOriginalSiteEntityConverter } from "util/SubmissionOriginalSi
 import { SubmissionQuizEntityConverter } from "util/SubmissionQuizEntityConverter";
 import { DocumentEntityConverter } from "util/DocumentEntityConverter";
 import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter";
+import { UserProgressEntityConverter } from "util/UserProgressEntityConverter";
 
 class FireStoreAdminRepository {
   // LectureSeasonキャッシュ
@@ -40,6 +42,7 @@ class FireStoreAdminRepository {
   private static readonly SubmissionQuizCollectionName = "submission-quiz-collection";
   private static readonly DocumentCollectionName = "document-collection";
   private static readonly LectureSeasonCollectionName = "lecture-season-collection";
+  private static readonly UserProgressCollectionName = "user-progress-collection";
 
   /*
    * UserInfo
@@ -143,6 +146,19 @@ class FireStoreAdminRepository {
   public static async deleteLectureSeason(id: string): Promise<void> {
     await deleteDoc(doc(FirebaseConfig.db, this.LectureSeasonCollectionName, id));
     this.clearLectureSeasonCache();
+  }
+
+  /*
+   * UserProgress
+   */
+  public static async getUserProgressListBySeason(seasonId: string): Promise<UserProgressEntity[]> {
+    const q = query(
+      collection(FirebaseConfig.db, this.UserProgressCollectionName),
+      where("seasonId", "==", seasonId),
+      orderBy("createdAt", "desc"),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => UserProgressEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
   /*

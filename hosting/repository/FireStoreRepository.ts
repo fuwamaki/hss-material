@@ -1,4 +1,5 @@
 import type { UserInfoEntity } from "model/UserInfoEntity";
+import type { UserProgressEntity } from "model/UserProgressEntity";
 import { UserInfoEntityConverter } from "util/UserInfoEntityConverter";
 import {
   collection,
@@ -26,6 +27,7 @@ import { ChatMessageEntityConverter } from "util/ChatMessageEntityConverter";
 import { SubmissionOriginalPlayEntityConverter } from "util/SubmissionOriginalPlayEntityConverter";
 import { SubmissionOriginalSiteEntityConverter } from "util/SubmissionOriginalSiteEntityConverter";
 import { SubmissionQuizEntityConverter } from "util/SubmissionQuizEntityConverter";
+import { UserProgressEntityConverter } from "util/UserProgressEntityConverter";
 import { LectureSeasonEntityConverter } from "util/LectureSeasonEntityConverter";
 import { LectureSeasonEntity } from "model/LectureSeasonEntity";
 
@@ -41,6 +43,7 @@ class FireStoreRepository {
   private static readonly SubmissionOriginalPlayCollectionName = "submission-original-play-collection";
   private static readonly SubmissionOriginalSiteCollectionName = "submission-original-site-collection";
   private static readonly SubmissionQuizCollectionName = "submission-quiz-collection";
+  private static readonly UserProgressCollectionName = "user-progress-collection";
 
   /*
    * UserInfo
@@ -158,6 +161,65 @@ class FireStoreRepository {
       return updated;
     } catch (error) {
       console.error("Error updating userInfo:", error);
+      throw error;
+    }
+  }
+
+  /*
+   * UserProgress
+   */
+  public static async getUserProgress(uid: string): Promise<UserProgressEntity | null> {
+    try {
+      const q = query(
+        collection(FirebaseConfig.db, this.UserProgressCollectionName),
+        where("studentId", "==", uid),
+        orderBy("createdAt", "desc"),
+        limit(1),
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const docSnap = querySnapshot.docs[0];
+        return UserProgressEntityConverter.fromFirestore(docSnap.id, docSnap.data());
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting userProgress:", error);
+      throw error;
+    }
+  }
+
+  public static async createUserProgress(
+    uid: string,
+    progress: Omit<UserProgressEntity, "id" | "studentId" | "createdAt" | "updatedAt">,
+  ): Promise<string> {
+    try {
+      const ref = await addDoc(collection(FirebaseConfig.db, this.UserProgressCollectionName), {
+        ...progress,
+        studentId: uid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      return ref.id;
+    } catch (error) {
+      console.error("Error creating userProgress:", error);
+      throw error;
+    }
+  }
+
+  public static async updateUserProgress(
+    uid: string,
+    update: Partial<Omit<UserProgressEntity, "id" | "studentId" | "createdAt" | "updatedAt">>,
+  ): Promise<UserProgressEntity | null> {
+    try {
+      const progress = await this.getUserProgress(uid);
+      if (!progress) throw new Error("進捗データが見つかりません");
+      await updateDoc(doc(FirebaseConfig.db, this.UserProgressCollectionName, progress.id), {
+        ...update,
+        updatedAt: serverTimestamp(),
+      });
+      return await this.getUserProgress(uid);
+    } catch (error) {
+      console.error("Error updating userProgress:", error);
       throw error;
     }
   }
