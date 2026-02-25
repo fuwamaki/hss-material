@@ -16,6 +16,21 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
+  const normalizeVideoTag = (raw: string) => {
+    if (!raw.includes("<video")) return raw;
+    if (raw.includes("</video>")) return raw;
+    return raw.replace(/<video\b([^>]*)>/g, "<video$1></video>");
+  };
+
+  const normalizeVideoSrc = (src?: string) => {
+    if (!src) return undefined;
+    const imgurMatch = src.match(/^https?:\/\/imgur\.com\/([a-zA-Z0-9]+)$/);
+    if (imgurMatch) {
+      return `https://i.imgur.com/${imgurMatch[1]}.mp4`;
+    }
+    return src;
+  };
+
   const remarkCustomContainer = () => (tree: any) => {
     visit(tree, (node: any) => {
       if (node.type !== "containerDirective") return;
@@ -110,6 +125,18 @@ const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
         {children}
       </blockquote>
     ),
+    video: ({ src, children, ...props }: { src?: string; children?: ReactNode }) => (
+      <video
+        src={normalizeVideoSrc(src)}
+        controls
+        playsInline
+        preload="metadata"
+        className="my-4 w-full max-w-full rounded-xl"
+        {...props}
+      >
+        {children}
+      </video>
+    ),
     code: (props: any) => {
       const { inline, children, className: codeClassName, node } = props;
       const hasLangClass = typeof codeClassName === "string" && /(language-|hljs)/.test(codeClassName);
@@ -165,7 +192,7 @@ const MarkdownPreview = ({ content, className }: MarkdownPreviewProps) => {
         components={components}
         urlTransform={urlTransform}
       >
-        {content}
+        {normalizeVideoTag(content)}
       </ReactMarkdown>
     </div>
   );
