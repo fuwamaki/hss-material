@@ -13,7 +13,7 @@ const Page = () => {
   const [uid, setUid] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessageEntity[]>([]);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);

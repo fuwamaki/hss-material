@@ -26,7 +26,7 @@ import {
 import { addToast } from "@heroui/toast";
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [documents, setDocuments] = useState<DocumentEntity[]>([]);
   const [selectedType, setSelectedType] = useState<DocumentationType>(DocumentationType.FirstDay);
   const [title, setTitle] = useState("");

@@ -16,7 +16,7 @@ import SubmissionQuizForm from "./SubmissionQuizForm";
 
 const Page = () => {
   const [uid, setUid] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);

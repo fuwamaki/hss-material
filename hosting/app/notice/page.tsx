@@ -10,7 +10,7 @@ import Link from "next/link";
 import { addToast } from "@heroui/toast";
 
 const Page = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
   const [notices, setNotices] = useState<NoticeEntity[]>([]);
   const [seasonId, setSeasonId] = useState<string>("");

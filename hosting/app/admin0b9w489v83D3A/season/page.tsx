@@ -22,7 +22,7 @@ import { addToast } from "@heroui/toast";
 import CheckIcon from "icons/check";
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [seasons, setSeasons] = useState<LectureSeasonEntity[]>([]);
   const [name, setName] = useState("");
   const [isActive, setIsActive] = useState(true);

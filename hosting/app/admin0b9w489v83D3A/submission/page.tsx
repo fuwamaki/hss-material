@@ -13,7 +13,7 @@ import { Select, SelectItem, Spinner, Tab, Tabs, Button } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [seasons, setSeasons] = useState<LectureSeasonEntity[]>([]);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [users, setUsers] = useState<UserInfoEntity[]>([]);

@@ -11,7 +11,7 @@ import { Spinner } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [documents, setDocuments] = useState<DocumentEntity[]>([]);
 
   const fetchDocuments = async () => {
@@ -48,38 +48,41 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100 relative">
-      {isLoading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center">
-          <Spinner
-            color="primary"
-            label=""
-            size="lg"
-          />
-        </div>
-      )}
+    <div className="min-h-screen bg-neutral-100 flex flex-col">
       <CommonNavBar title="最終日" />
-      <div className="min-h-screen max-w-6xl mx-auto px-4 py-8 space-y-6">
-        {sortedDocuments.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center text-sm text-neutral-500">
-            ドキュメントがありません。
+      <div className="flex-1 relative">
+        {isLoading ? (
+          <div className="absolute inset-0 z-50 flex items-center justify-center">
+            <Spinner
+              color="primary"
+              label=""
+              size="lg"
+            />
           </div>
         ) : (
-          <div className="space-y-6">
-            {sortedDocuments.map((doc) => (
-              <div
-                key={doc.id}
-                className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="text-lg font-bold text-neutral-900">{doc.title}</div>
-                  <div className="text-xs text-neutral-500">更新: {formatDate(doc.updatedAt)}</div>
-                </div>
-                <div className="mt-4">
-                  <MarkdownPreview content={doc.body || ""} />
-                </div>
+          <div className="min-h-full max-w-6xl mx-auto px-4 py-8 space-y-6">
+            {sortedDocuments.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center text-sm text-neutral-500">
+                ドキュメントがありません。
               </div>
-            ))}
+            ) : (
+              <div className="space-y-6">
+                {sortedDocuments.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="text-lg font-bold text-neutral-900">{doc.title}</div>
+                      <div className="text-xs text-neutral-500">更新: {formatDate(doc.updatedAt)}</div>
+                    </div>
+                    <div className="mt-4">
+                      <MarkdownPreview content={doc.body || ""} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
