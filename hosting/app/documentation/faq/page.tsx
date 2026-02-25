@@ -35,6 +35,13 @@ const Page = () => {
     return [...documents].sort((a, b) => (a.orderId ?? 0) - (b.orderId ?? 0));
   }, [documents]);
 
+  const handleScrollToDocument = (docId: string) => {
+    const target = document.getElementById(`doc-${docId}`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const formatDate = (value: unknown) => {
     if (!value) return "-";
     if (value instanceof Date) return value.toLocaleString();
@@ -67,9 +74,26 @@ const Page = () => {
               </div>
             ) : (
               <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-5">
+                  <div className="text-lg font-bold text-neutral-900">目次</div>
+                  <ul className="mt-3 space-y-2">
+                    {sortedDocuments.map((doc) => (
+                      <li key={`toc-${doc.id}`}>
+                        <button
+                          type="button"
+                          className="text-left text-sm text-indigo-600 hover:text-neutral-900"
+                          onClick={() => handleScrollToDocument(doc.id)}
+                        >
+                          ・{doc.title}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {sortedDocuments.map((doc) => (
                   <div
                     key={doc.id}
+                    id={`doc-${doc.id}`}
                     className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
                   >
                     <div className="flex flex-col gap-2">
