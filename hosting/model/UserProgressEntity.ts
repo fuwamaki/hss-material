@@ -7,30 +7,7 @@ export interface UserProgressEntity {
   pcOsType: PcOsType | null;
   canInstallVSCode: boolean;
   canUseGeminiCodeAssistant: boolean;
-  setup: {
-    isInstallSampleCode: boolean;
-    isOpenTerminal: boolean;
-    isInstallNode: boolean;
-    isNpmInstallDone: boolean;
-    isRunSampleCode: boolean;
-  };
-  vscode: {
-    isInstall: boolean;
-    isInstallGeminiCodeAssistant: boolean;
-    isLinkGeminiCodeAssistant: boolean;
-  };
-  commonIssue: {
-    isStopwatch: boolean;
-    isAddSamplePage: boolean;
-    isOthello: boolean;
-    isCalculator: boolean;
-    isReadCode: boolean;
-    isFixBug: boolean;
-    isQuiz: boolean;
-    isQuizFeature: boolean;
-    isQuizDesign: boolean;
-    isQuizSubmit: boolean;
-  };
+  completedWorkList: string[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
