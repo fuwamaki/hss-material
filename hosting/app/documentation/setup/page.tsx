@@ -7,7 +7,7 @@ import type { DocumentEntity } from "model/DocumentEntity";
 import { DocumentationType } from "enum/DocumentationType";
 import MarkdownPreview from "component/MarkdownPreview";
 import CommonFooter from "component/CommonFooter";
-import { Spinner } from "@heroui/react";
+import { Spinner, Tab, Tabs } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 
 const Page = () => {
@@ -66,21 +66,26 @@ const Page = () => {
                 ドキュメントがありません。
               </div>
             ) : (
-              <div className="space-y-6">
-                {sortedDocuments.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <div className="text-lg font-bold text-neutral-900">{doc.title}</div>
-                      <div className="text-xs text-neutral-500">更新: {formatDate(doc.updatedAt)}</div>
-                    </div>
-                    <div className="mt-4">
-                      <MarkdownPreview content={doc.body || ""} />
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+                <Tabs
+                  aria-label="セットアップドキュメント"
+                  color="primary"
+                  variant="underlined"
+                >
+                  {sortedDocuments.map((doc) => (
+                    <Tab
+                      key={doc.id}
+                      title={doc.title}
+                    >
+                      <div className="pt-4">
+                        <div className="text-xs text-neutral-500">更新: {formatDate(doc.updatedAt)}</div>
+                        <div className="mt-4">
+                          <MarkdownPreview content={doc.body || ""} />
+                        </div>
+                      </div>
+                    </Tab>
+                  ))}
+                </Tabs>
               </div>
             )}
           </div>
