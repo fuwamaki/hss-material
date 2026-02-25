@@ -52,49 +52,54 @@ const Page = () => {
   }, [notices]);
 
   return (
-    <div className="min-h-screen bg-neutral-100 relative">
-      {loading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40">
-          <Spinner
-            color="primary"
-            label=""
-            size="lg"
-          />
-        </div>
-      )}
+    <div className="min-h-screen bg-neutral-100 flex flex-col">
       <CommonNavBar title={"お知らせ"} />
-      <div className="min-h-screen max-w-6xl mx-auto px-4 py-8">
-        {!loggedIn ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
-            <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
-            <div className="text-sm text-neutral-600 mb-4">お知らせを見るには、アカウントでログインしてください。</div>
-            <Link href="/account">
-              <Button color="primary">アカウントページへ</Button>
-            </Link>
-          </div>
-        ) : !seasonId ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
-            <div className="text-lg font-bold text-neutral-800 mb-2">シーズン情報が未設定です</div>
-            <div className="text-sm text-neutral-600 mb-4">事前アンケートで受講シーズンを設定してください。</div>
-            <Link href="/account">
-              <Button color="primary">アンケートへ</Button>
-            </Link>
-          </div>
-        ) : sortedNotices.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
-            <div className="text-sm text-neutral-600">お知らせはまだありません。</div>
+      <div className="flex-1 relative">
+        {loading ? (
+          <div className="absolute inset-0 z-50 flex items-center justify-center">
+            <Spinner
+              color="primary"
+              label=""
+              size="lg"
+            />
           </div>
         ) : (
-          <div className="space-y-4">
-            {sortedNotices.map((notice) => (
-              <div
-                key={notice.id}
-                className="bg-white rounded-xl shadow-sm border border-neutral-200 p-5"
-              >
-                <div className="text-lg font-bold text-neutral-800">{notice.title}</div>
-                <div className="text-sm text-neutral-700 whitespace-pre-line mt-2">{notice.description}</div>
+          <div className="min-h-full max-w-6xl mx-auto px-4 py-8">
+            {!loggedIn ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
+                <div className="text-lg font-bold text-neutral-800 mb-2">ログインが必要です</div>
+                <div className="text-sm text-neutral-600 mb-4">
+                  お知らせを見るには、アカウントでログインしてください。
+                </div>
+                <Link href="/account">
+                  <Button color="primary">アカウントページへ</Button>
+                </Link>
               </div>
-            ))}
+            ) : !seasonId ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
+                <div className="text-lg font-bold text-neutral-800 mb-2">シーズン情報が未設定です</div>
+                <div className="text-sm text-neutral-600 mb-4">事前アンケートで受講シーズンを設定してください。</div>
+                <Link href="/account">
+                  <Button color="primary">アンケートへ</Button>
+                </Link>
+              </div>
+            ) : sortedNotices.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 text-center">
+                <div className="text-sm text-neutral-600">お知らせはまだありません。</div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {sortedNotices.map((notice) => (
+                  <div
+                    key={notice.id}
+                    className="bg-white rounded-xl shadow-sm border border-neutral-200 p-5"
+                  >
+                    <div className="text-lg font-bold text-neutral-800">{notice.title}</div>
+                    <div className="text-sm text-neutral-700 whitespace-pre-line mt-2">{notice.description}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

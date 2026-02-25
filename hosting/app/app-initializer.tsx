@@ -44,7 +44,7 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center h-screen relative">
+      <div className="flex items-center justify-center h-screen relative bg-neutral-100">
         <div className="absolute inset-0 z-50 flex items-center justify-center">
           <Spinner
             color="primary"
