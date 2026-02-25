@@ -10,6 +10,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Switch,
   Tab,
   Tabs,
   Textarea,
@@ -20,7 +21,7 @@ interface EditDocumentModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   document: DocumentEntity | null;
-  onSubmit: (payload: { title: string; body: string; orderId: number }) => void;
+  onSubmit: (payload: { title: string; body: string; orderId: number; isWork: boolean }) => void;
   isSubmitting: boolean;
 }
 
@@ -28,12 +29,14 @@ const EditDocumentModal = ({ isOpen, onOpenChange, document, onSubmit, isSubmitt
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [orderId, setOrderId] = useState<number>(1);
+  const [isWork, setIsWork] = useState(false);
 
   useEffect(() => {
     if (!document) return;
     setTitle(document.title || "");
     setBody(document.body || "");
     setOrderId(typeof document.orderId === "number" ? document.orderId : 1);
+    setIsWork(!!document.isWork);
   }, [document]);
 
   const handleSubmit = () => {
@@ -41,6 +44,7 @@ const EditDocumentModal = ({ isOpen, onOpenChange, document, onSubmit, isSubmitt
       title: title.trim(),
       body: body.trim(),
       orderId,
+      isWork,
     });
   };
 
@@ -69,6 +73,15 @@ const EditDocumentModal = ({ isOpen, onOpenChange, document, onSubmit, isSubmitt
                   value={String(orderId)}
                   onValueChange={(value) => setOrderId(Number(value) || 1)}
                 />
+                <div className="flex items-center gap-3">
+                  <Switch
+                    isSelected={isWork}
+                    onValueChange={setIsWork}
+                    color="primary"
+                  >
+                    作業対象
+                  </Switch>
+                </div>
               </div>
               <Tabs
                 aria-label="本文入力とプレビュー"

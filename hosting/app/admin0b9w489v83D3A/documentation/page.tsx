@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
+  Switch,
 } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 
@@ -32,6 +33,7 @@ const Page = () => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [orderId, setOrderId] = useState<number>(0);
+  const [isWork, setIsWork] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<DocumentEntity | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -86,6 +88,7 @@ const Page = () => {
     setTitle("");
     setBody("");
     setOrderId(nextOrderId);
+    setIsWork(false);
   };
 
   const handleAdd = async () => {
@@ -99,7 +102,7 @@ const Page = () => {
     }
     setIsLoading(true);
     try {
-      await FireStoreAdminRepository.addDocument(title.trim(), body.trim(), selectedType, orderId);
+      await FireStoreAdminRepository.addDocument(title.trim(), body.trim(), selectedType, orderId, isWork);
       addToast({ title: "ドキュメントを追加しました。", color: "success" });
       resetForm();
       await fetchDocuments(selectedType);
@@ -115,7 +118,7 @@ const Page = () => {
     setIsEditOpen(true);
   };
 
-  const handleUpdate = async (payload: { title: string; body: string; orderId: number }) => {
+  const handleUpdate = async (payload: { title: string; body: string; orderId: number; isWork: boolean }) => {
     if (!editTarget) return;
     if (!payload.title.trim()) {
       addToast({ title: "タイトルを入力してください。", color: "warning" });
@@ -131,6 +134,7 @@ const Page = () => {
         title: payload.title.trim(),
         body: payload.body.trim(),
         orderId: payload.orderId,
+        isWork: payload.isWork,
       });
       addToast({ title: "ドキュメントを更新しました。", color: "success" });
       setIsEditOpen(false);
@@ -228,6 +232,15 @@ const Page = () => {
                 value={String(orderId)}
                 onValueChange={(value) => setOrderId(Number(value) || 0)}
               />
+              <div className="flex items-center gap-3">
+                <Switch
+                  isSelected={isWork}
+                  onValueChange={setIsWork}
+                  color="primary"
+                >
+                  作業対象
+                </Switch>
+              </div>
             </div>
             <div className="mt-4">
               <Tabs
@@ -278,6 +291,7 @@ const Page = () => {
               <TableHeader>
                 <TableColumn>表示順</TableColumn>
                 <TableColumn>タイトル</TableColumn>
+                <TableColumn>作業対象</TableColumn>
                 <TableColumn>本文</TableColumn>
                 <TableColumn>更新日時</TableColumn>
                 <TableColumn>操作</TableColumn>
@@ -292,6 +306,7 @@ const Page = () => {
                     <TableRow key={doc.id}>
                       <TableCell>{typeof doc.orderId === "number" ? doc.orderId : "-"}</TableCell>
                       <TableCell className="font-semibold text-neutral-800">{doc.title}</TableCell>
+                      <TableCell>{doc.isWork ? "はい" : "いいえ"}</TableCell>
                       <TableCell>
                         <div className="whitespace-pre-wrap text-sm text-neutral-700 max-w-md">
                           {preview || "-"}

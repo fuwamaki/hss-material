@@ -240,12 +240,19 @@ class FireStoreAdminRepository {
     return snapshot.docs.map((docSnap) => DocumentEntityConverter.fromFirestore(docSnap.id, docSnap.data()));
   }
 
-  public static async addDocument(title: string, body: string, typeId: number, orderId: number): Promise<string> {
+  public static async addDocument(
+    title: string,
+    body: string,
+    typeId: number,
+    orderId: number,
+    isWork: boolean,
+  ): Promise<string> {
     const ref = await addDoc(collection(FirebaseConfig.db, this.DocumentCollectionName), {
       title,
       body,
       typeId,
       orderId,
+      isWork,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

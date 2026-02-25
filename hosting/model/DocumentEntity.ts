@@ -4,6 +4,7 @@ export interface DocumentEntity {
   orderId: number;
   title: string;
   body: string;
+  isWork: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
